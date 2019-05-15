@@ -1,0 +1,29 @@
+Rätt Policy för IAM Användare/Grupper
+
+Säkerhetsställ network security group regler
+
+Vara rädd om ssh nycklarna
+
+Load Balancing (Elastic/Application Load Balancing)
+
+Autoscaling (Uppgraderar VM)
+
+Edge Caching med Cloudfront
+
+Edge Security 
+
+DDoS skydd AWS Shield (3000 i månaden, kanske cloudflare)
+
+Backup Amazon S3
+
+SE Linux
+
+firewalld stödjer ej amazon linux/aws?
+
+Regelbunden monitorering IAM & Server
+
+Köra Nginx med HTTPS/SSL
+
+kanske CHROOT (JAIL)?
+
+Lås ner maskinen (INC:HTTP/ICMP / OUT:NTP/SMTP?)

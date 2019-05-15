@@ -1,0 +1,182 @@
+# Step by Step
+
+Launch Instance
+
+Amazon Linux 2 AMI (HVM), SSD Volume Type - ami-07683a44e80cd32c5 (64-bit x86)
+
+General purpose | t2.micro
+
+Enable termination protection  ✓ 
+
+Advanced Details> User data (As text):
+{
+#!/bin/bash
+
+# Uppdatera Repo
+yum update -y
+
+# Installera Nginx 1.12
+amazon-linux-extras install nginx1.12 -y
+
+# Döp om index.html>backupindex.html
+mv /usr/share/nginx/html/index.html /usr/share/nginx/html/backupindex.html
+
+# Skapa index.html
+touch /usr/share/nginx/html/index.html
+
+# Custom index.html
+echo "<html><H1>Mohsen</H1></html>" > /usr/share/nginx/html/index.html
+
+# Autostarta Nginx
+systemctl enable nginx
+
+# Starta om Nginx
+systemctl restart nginx
+
+# END
+}
+
+Add Storage (Default 8GB)
+
+Add Tags: Name - LAB-Nginx1.12
+
+Configure Security Group(Cloud9-SSH-HTTP/EUWEST): HTTP / SSH: 172.16.0.0/12 Internal
+
+Existing Key Pair (MyLoginKey)
+
+Launch
+
+--------
+
+Verifiera Hemsidan
+
+
+--------
+
+Högerklicka på VM/Instansen, Image>Create Image
+
+Image Name: Custom-Nginx
+
+Create Image
+
+----------
+
+Auto Scaling> Auto Scaling Groups
+
+Launch Configuration
+
+My AMIs> Custom-Nginx
+
+t2.micro (Free tier eligible)
+
+Launch Configuration Name: Custom-Nginx-AutoScaling-Security-Group-v1
+
+Type: HTTP / SSH: 172.16.0.0/12 Internal
+
+Create Launch Configuration
+
+Choose Existing Key Pair (MyLoginKey)
+
+Auto Scaling Group Name: Custom-Nginx-AutoScalingGroup
+
+Start with 3 instances (min:3 max:3 konstant)
+
+Lägg till subnets (alla 3 eu-west-1a eu-west-1b eu-west-1c)
+
+Keep this group at its initial size
+
+Configure Notifications
+
+Configure Tags
+
+Create
+
+-------------
+
+Load Balancing>Load Balancers
+
+Create Load Balancers
+
+Application Load Balancer
+
+Name: Custom-Nginx-ELB
+
+Availability Zones: ✓ eu-west-1a ✓ eu-west-1b ✓ eu-west-1c
+
+Configure Security Settings
+
+Configure Security Groups
+
+Create New Security Group
+
+Security Group Name: Custom-Nginx-ELB-SG
+
+Type: HTTP
+
+Configure Routing
+
+New Target Group
+
+Name: Custom-Nginx-public-TG
+
+Register Targets
+
+Next Review
+
+Create
+
+-----
+
+Auto Scaling>Auto Scaling Groups
+
+Rightclick>Custom-Nginx-AutoScalingGroup>Edit
+
+Target Group: Custom-Nginx-public-TG
+
+Save
+
+----
+
+Verifiera Load Balacing>Load Balancer: Copy DNS Name 
+
+--------
+
+
+
+
+
+
+==========================================
+
+Bucket:
+vahebi-nginx-s3 (ireland)
+
+CDN ID: E2SN5CSFDIRXFB > vahebi-nginx-s3
+
+VM: DEV-Nginx01
+VM: PROD-Nginx
+
+ALB: DEV-Nginx-ALB
+ALB: PROD-Nginx-ALB
+
+ASG: PROD-Nginx-ASG
+
+Role: EC2-S3AdminAccess
+
+Role: EC2-S3ReadAccess
+
+NSG: Cloud9-SSH-HTTP/EUWEST
+NSG: HTTP-DMZ
+S3 Lifecycle Rule: S3-nginxlifecycle
+
+---
+
+echo "*/5**** root aws s3 sync --delete /usr/share/nginx/html s3://vahebi-nginx-s3 --region eu-west-1" >> /etc/crontab
+
+----
+
+echo "*/5**** root aws s3 sync --delete s3://vahebi-nginx-s3 /usr/share/nginx/html --region eu-west-1" >> /etc/crontab
+
+DEV Template: aws s3 sync --delete s3://vahebi-nginx-s3 /usr/share/nginx/html --region eu-west-1
+
+Prod Template: aws s3 sync --delete s3://vahebi-nginx-s3 /usr/share/nginx/html --region eu-west-1

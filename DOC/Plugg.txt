@@ -1,0 +1,274 @@
+###########################################################
+# Installera yum-cron för automatiska updates
+yum install yum-cron -y
+
+#stresstest
+yum install stress -y
+
+# Start & Enable
+systemctl enable yum-cron
+
+#systemctl start yum-cron
+
+# Enable autoupdates, editera conf
+sed -i 's/apply_updates = no/apply_updates = yes/g' /etc/yum/yum-cron.conf
+###########################################################
+https://www.draw.io/?splash=0&libs=aws3
+https://cloudcraft.co/ # ska vara bättre
+#syncar
+aws s3 sync --delete /var/www/ s3://minbucket
+
+*/3
+skapa .htaccess
+###########################################################
+IAM
+	IAM användare som standard har inga rättigheter
+	Stödjer SAML federering
+	Konton består av User/Group/Roles/Policy
+	Använd roller för och förhindra att din nyckel lagras i .aws och applicera på instansen
+
+S3
+	S3 dns länkar S3.eu-west1.amazon.com/namn
+	Bucket = Mapp
+	S3 - S3 IA - S3 Reduced Redundancy Storage - Glacier
+	S3 är byggd för 99.99% availabililty
+	S3 SLA 99.9 availabililty
+	S3 SLA 11x9s 99.999999999% durabililty (chans och förlora data)
+	Flyttar data mellan storage tiers
+	Stödjer ACL
+	Read before Write, läser direkt men tar tid och skriva information
+	Glacier är billig men tar lång tid att hämta tillbaka data
+	HTTP200=Successful
+	Minimum Size 0bytes på en fil i en bucket
+	3 Server Side Encryption | 1 Client Side Encryption
+	0-5TB objekt
+	
+	
+S3 Versioning 
+	Sparar alla versioner av ett objekt
+	Brara backup
+	När man slår på det kan man inte stänga av
+	MFA stöd
+	Integrerar lifecycle
+	
+S3 Cross Region Replication
+	Versioning måste vara enabled på source & destination
+	Regioner måste vara unika
+	Filer som redan existerar i en bucket kopieras inte över automatiskt (från start)
+	Kan ej kedja replications till flera buckets eller flera samtidigt
+	Delete markers replikeras
+	Ta bort versionener eller Delete markers kommer ej replikeras
+	
+S3 LifeCycle Management
+	Fungerar med Versioning
+	Kan Användas på nuvarande versioner och gamla
+	Kan flytta filer baserat på ålder och storage type tex S3 IA (min 128Kb & 30dagar)
+	Kan arkivera till Glacier efter 30 från IA
+	Tar bort permanent
+	
+S3 Cloudfront CDN
+	Edge Location är plats som cache:ar content, finns 50st i dagsläget
+	Origin är där huvudmaterialet finns innan man delar ut den via CDN
+	Origin kan vara:
+		S3-Bucket
+		EC2 Instance (VM)
+		Elastic Load Balancer
+		Route53
+	Distribution är namnet på din CDN som består av Edge Locations
+	Web Distribution är typiskt för hemsidor
+	RTMP används för media streaming
+	Det går att skriva på Edge Locations också
+	Objekt existerar baserat på TTL
+	Du kan ta bort cached objekt men det kostar
+	
+S3 Security & Encryption
+	Buckets är privat default
+	ACL på buckets:
+		Bucket Policies
+		Access Control Lists
+	Buckets kan access loggas
+	Encryption
+		In Transit
+			SSL/TLS
+		At Rest
+			Server Side Encryption(Förkortningar är viktiga)
+				S3 Managed Keys - SS3-S3
+				AWS Key Management Service, Managed Keys - SSE-KMS(Audit Trail)
+				Server Side Encryption With Customer Provided Keys - SSE-C
+		Client Side Encryption
+		
+S3 Storage Gateway
+	File Gateway: pdf, word dokument
+	Volume Gateway
+		Stored Volumes: Skickar data från onsite till AWS som en backup
+		Cached Volumes: All data är lagrad på S3 medans det som är cache:at finns onprem
+	Gateway Virtual Tape Library:
+		Används med backup applicationer så som Veeam
+
+S3 Snowball
+	Import Export är vad Snowball hette tidigare
+	Snowball är ett sätt att hämta och skicka data fysiskt mellan S3, är en lagringsenhet
+	Snowmobile är en lastbil som stödjer petabytes, migrering av datacenter
+	
+S3 Transfer Acceleration
+	Ökar din uppladdningshastighet mot din bucket genom edge.
+
+EC2 Options
+	On Demand: fixed rate by the second
+	Reserved: 1-3 år kontrakt, kapacitetsreservation
+	Spot: Bid price, auktion
+		Om du stoppar en Spot instans så betalar du för hela timman
+	Dedicated Hosts: dedikerad maskin
+	DIRTMCG-FPX (DR MC GIFT PX) Instans Typerna
+
+EC2 EBS
+	SSD General Purpose (GP2)>10,000 IOPS
+	SSD Provisioned IOPS (IO1)+10,000 IOPS
+	HDD, Throughput Optimized (ST1) Big Data, Frequently Accessed Workloads
+		Kan ej köra OS
+	HDD, Cold SC1 - Less frequently accessed data, fil server
+		Kan ej köra OS
+	HDD Magnetic Standard, billig, infrequently accessed storage
+	Kan ej mounta 1 EBS till flera EC2 Instanser, används EFS istället
+
+EC2 LAB
+	Termination Protection är av default
+	Default value för borttagning av en instans tar även bort root hårdisken
+	Default AMI kan inte krypteras utan third party
+
+EC2 Security Group
+	Inkommande trafik blockeras default
+	Utgående trafik är tillåten default
+	Ändringar tar plats direkt
+	Du kan ha flera security groups på en EC2 instans
+	Security Groups är Stateful, alla inkommande regler skapar även utgående
+	Du kan inte blockera specifika IP adresser med Security Groups, måste använda Network ACL
+	Kan bara specifiera allow regler
+
+EC2 EBS - AZ= Availabililty Zone
+	Kan skapa snapshots av volymer
+	Kan ändra storlek under drift
+	Volymer kommer ALLTID vara i samma AZ
+	Måste Snapshotta för och flytta till en annan region
+	Snapshots och Volymer är alltid krypterade
+	Du kan även dela Snapshots men bara om dom inte är krypterade
+	Snapshots är incremental
+	
+EC2 Instance Store
+	Instance store kallas även Ephemeral Storage
+	Ïnstance Store volymer kan ej stoppas, dör hosten så förlorar du din data
+	EBS instanser kan stoppas och du förlorar ej data
+	Du kan starta om båda sorters instanser
+	EBS kan spara root volymen
+	
+EC2 ELB
+	ELB Status
+		InService
+		OutofService
+	Du får bara en DNS och inte en IP
+
+EC2 Cloudwatch(monitorering)
+		Dashboards
+		Alarms
+		Events: if this then that
+		Logs, installerar en agent 
+		Cloudtrail är inte samma sak, det är mer auditing
+		
+EC2 AWS-CLI
+	aws configure
+		Access Key ID
+		Secret Access Key
+		Default Region Name:[enter] tex eu-west-2
+		Default Output Format: [enter]
+	aws s3 ls
+	aws s3 help
+	cd ~ [lagrar accesskey här]
+		cd .aws
+			ls
+				cat credentials
+	aws ec2 describe-instances [listar alla instanser]
+	aws ec2 terminate-instances --instance-ids [instansID] #tar bort instansen
+	aws-ec2 run-instances #skapar instans
+	
+EC2 CLI & Region
+	aws s3 cp --recursive s3://namnpåbucket-uswesteast1 /home/ec2-user
+			aws s3 cp --recursive s3://namnpåbucket-euwest2 /home/ec2-user --region eu-west-2
+
+EC2 Instance Metadata
+	curl http://169.254.169.254/latest/meta-data/ #metadata om instansen
+	
+EC2 Autoscaling
+	Kräver ELB
+	Skapa ELB först
+	Skickar trafik baserat på healthcheck
+	
+EC2 Placement Groups
+	Används för hög throughput och låg latens
+	Måste finnas i en och samma AZ
+	Namnet måste vara unikt inom ditt AWS konto
+	Stödjer bara vissa typer av instanstyper
+	Det går inte och slå ihop Placement Grouops
+	Du kan inte flytta instanser i en placement group, utan du behöver skapa en AMI
+	
+EC2 EFS
+	Amazon Elastic File System / File Server
+	Growing & Shrinking automatiskt
+	Stödjer NFS
+	Du betalar endast för lagringen som du använder
+	Skalar upp till petabytes
+	Data lagrings brand flera olika AZ i samma region
+	Blockbased storage
+	Read after Write Consistency
+	Mount instruktioner finns i EFSen, copy paste
+
+EC2 Lambda (Datacenter>IAAS>PAAS>Containers>Serverless)
+	Encapulates: Datacenter,Hardware,Assemblycode/Protocols,OS,Application Layer/AWS APIs
+	Tar betalt per request och duration (max 5 minuter) BILLIGT
+	Inga Servrar
+	Continuous Scaling / Scales OUT 
+	1 event = 1 funktion
+	Språk:
+		Node.js
+		Java
+		Python
+		C#
+
+AWS Databases
+	RDS -OLTP (OLTP tänk ehandel, vad jag köper, när det kommer, vilken adress)
+		SQL
+		MySQL
+		PostgreSQL
+		Oracle
+		Aurora
+		MariaDB
+	DynamoDB - No SQL
+		Pushbutton scaling
+		SSD
+		Ligger i 3 datacenters
+		Consistency Models
+			Eventual Consistent Read (Default)
+			Strongly Consistent Reads (Svarar under 1 sekund)
+	Redshift - OLAP ( OLAP = Komplexa Queries)
+		Single Node (160GB)
+		Multi-Node
+			Leader Node (Tar emot klient förfrågningar)
+			Compute Node (Lagrar data och räknas Max 128)
+	Elasticache - In Memory Caching
+		Memcached
+		Redis
+	Multi AZ syncar till en annan DB, failover
+	Read Replica skalar ut databasen med Read Databaser
+	Aurora Scaling
+		Håller 2 kopior på din data per instans minimum 2 AZ alltså 6 kopior
+		Är byggd så att du kan tappa 2 kopior utan att det påverkar write, 3 kopior utan att det påverkar read
+		Är self-healing
+		Replikas
+			Aurora Replica (15)
+			MySQL Read Replica (5)
+
+DevOps
+	
+	
+	
+	
+	

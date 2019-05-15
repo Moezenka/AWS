@@ -1,0 +1,7 @@
+#aws configure
+#pip install awscli
+
+aws s3 ls
+
+#räcker en gång, continuous cp
+aws s3 cp --recursive s3://bucket1 s3://bucket2
