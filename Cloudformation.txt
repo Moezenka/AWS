@@ -1,557 +1,504 @@
-{
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Resources": {
-    "vpcecc3f98a": {
-      "Type": "AWS::EC2::VPC",
-      "Properties": {
-        "CidrBlock": "172.31.0.0/16",
-        "InstanceTenancy": "default",
-        "EnableDnsSupport": "true",
-        "EnableDnsHostnames": "true"
-      }
-    },
-    "subnet62423504": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "CidrBlock": "172.31.0.0/20",
-        "AvailabilityZone": "eu-west-1b",
-        "VpcId": {
-          "Ref": "vpcecc3f98a"
-        }
-      }
-    },
-    "subnet01e3a449": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "CidrBlock": "172.31.16.0/20",
-        "AvailabilityZone": "eu-west-1c",
-        "VpcId": {
-          "Ref": "vpcecc3f98a"
-        }
-      }
-    },
-    "subnet5d4dfc07": {
-      "Type": "AWS::EC2::Subnet",
-      "Properties": {
-        "CidrBlock": "172.31.32.0/20",
-        "AvailabilityZone": "eu-west-1a",
-        "VpcId": {
-          "Ref": "vpcecc3f98a"
-        }
-      }
-    },
-    "igw12ccfb75": {
-      "Type": "AWS::EC2::InternetGateway",
-      "Properties": {
-      }
-    },
-    "dopt5ed8ad38": {
-      "Type": "AWS::EC2::DHCPOptions",
-      "Properties": {
-        "DomainName": "eu-west-1.compute.internal",
-        "DomainNameServers": [
-          "AmazonProvidedDNS"
-        ]
-      }
-    },
-    "acl4bdb6432": {
-      "Type": "AWS::EC2::NetworkAcl",
-      "Properties": {
-        "VpcId": {
-          "Ref": "vpcecc3f98a"
-        }
-      }
-    },
-    "rtb63604c1a": {
-      "Type": "AWS::EC2::RouteTable",
-      "Properties": {
-        "VpcId": {
-          "Ref": "vpcecc3f98a"
-        }
-      }
-    },
-    "asgPRODNginxASG": {
-      "Type": "AWS::AutoScaling::AutoScalingGroup",
-      "Properties": {
-        "AvailabilityZones": [
-          "eu-west-1b",
-          "eu-west-1c",
-          "eu-west-1a"
-        ],
-        "Cooldown": "300",
-        "DesiredCapacity": "2",
-        "HealthCheckGracePeriod": "300",
-        "HealthCheckType": "EC2",
-        "MaxSize": "2",
-        "MinSize": "2",
-        "VPCZoneIdentifier": [
-          {
-            "Ref": "subnet62423504"
-          },
-          {
-            "Ref": "subnet01e3a449"
-          },
-          {
-            "Ref": "subnet5d4dfc07"
-          }
-        ],
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "PROD-Nginx-ASG",
-            "PropagateAtLaunch": true
-          }
-        ],
-        "TerminationPolicies": [
-          "Default"
-        ]
-      }
-    },
-    "instancei0dc3f23e5498d0f21": {
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "DisableApiTermination": "false",
-        "InstanceInitiatedShutdownBehavior": "stop",
-        "ImageId": "ami-083516253ad2d8ab6",
-        "InstanceType": "t2.micro",
-        "Monitoring": "false",
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "Cloud9"
-          }
-        ],
-        "NetworkInterfaces": [
-          {
-            "DeleteOnTermination": "true",
-            "DeviceIndex": 0,
-            "SubnetId": {
-              "Ref": "subnet5d4dfc07"
-            },
-            "PrivateIpAddresses": [
-              {
-                "PrivateIpAddress": "172.31.41.150",
-                "Primary": "true"
-              }
-            ],
-            "GroupSet": [
-              {
-                "Ref": "sgawscloud9SSHEnviroment96be09e191484499a45be2cdd386129fInstanceSecurityGroup1GW113IRGYCRA"
-              }
-            ],
-            "AssociatePublicIpAddress": "true"
-          }
-        ]
-      }
-    },
-    "instancei0070be78faa8cc894": {
-      "Type": "AWS::EC2::Instance",
-      "Properties": {
-        "DisableApiTermination": "false",
-        "InstanceInitiatedShutdownBehavior": "stop",
-        "IamInstanceProfile": "arn:aws:iam::811035705128:instance-profile/EC2-S3AdminAccess",
-        "ImageId": "ami-04bfd63c19b2374b1",
-        "InstanceType": "t2.micro",
-        "KeyName": "MyLoginKey",
-        "Monitoring": "false",
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "DEV-Nginx01"
-          }
-        ],
-        "NetworkInterfaces": [
-          {
-            "DeleteOnTermination": "true",
-            "DeviceIndex": 0,
-            "SubnetId": {
-              "Ref": "subnet62423504"
-            },
-            "PrivateIpAddresses": [
-              {
-                "PrivateIpAddress": "172.31.6.29",
-                "Primary": "true"
-              }
-            ],
-            "GroupSet": [
-              {
-                "Ref": "sgCloud9SSHHTTPEUWEST"
-              }
-            ],
-            "AssociatePublicIpAddress": "true"
-          }
-        ]
-      }
-    },
-    "s3vahebinginxs3": {
-      "Type": "AWS::S3::Bucket",
-      "Properties": {
-        "AccessControl": "Private",
-        "LifecycleConfiguration": {
-          "Rules": [
-            {
-              "ExpirationInDays": "15",
-              "Id": "S3-nginxlifecycle",
-              "Status": "Enabled"
-            }
-          ]
-        },
-        "VersioningConfiguration": {
-          "Status": "Suspended"
-        }
-      }
-    },
-    "sgNginxCFWebServerSecurityGroup37RIPO7OVXPX": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "Enable HTTPS access via port 443",
-        "VpcId": "vpc-07908e4f2ebc55fb7",
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "Nginx-CF"
-          }
-        ]
-      }
-    },
-    "sgHTTPDMZ": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "HTTP-DMZ",
-        "VpcId": {
-          "Ref": "vpcecc3f98a"
-        },
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "HTTP-DMZ"
-          }
-        ]
-      }
-    },
-    "sgCloud9SSHHTTPEUWEST": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "Cloud9-SSH-HTTP/EUWEST",
-        "VpcId": {
-          "Ref": "vpcecc3f98a"
-        },
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "INTERNALSSH-HTTP-SG"
-          }
-        ]
-      }
-    },
-    "sgawscloud9SSHEnviroment96be09e191484499a45be2cdd386129fInstanceSecurityGroup1GW113IRGYCRA": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "Security group for AWS Cloud9 environment aws-cloud9-SSH-Enviroment-96be09e191484499a45be2cdd386129f",
-        "VpcId": {
-          "Ref": "vpcecc3f98a"
-        },
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "CLOUD9SSH-SG"
-          }
-        ]
-      }
-    },
-    "sgdefault": {
-      "Type": "AWS::EC2::SecurityGroup",
-      "Properties": {
-        "GroupDescription": "default VPC security group",
-        "VpcId": {
-          "Ref": "vpcecc3f98a"
-        },
-        "Tags": [
-          {
-            "Key": "Name",
-            "Value": "Default"
-          }
-        ]
-      }
-    },
-    "dbsgdefault": {
-      "Type": "AWS::RDS::DBSecurityGroup",
-      "Properties": {
-        "GroupDescription": "default"
-      }
-    },
-    "s3policyvahebinginxs3": {
-      "Type": "AWS::S3::BucketPolicy",
-      "Properties": {
-        "Bucket": {
-          "Ref": "s3vahebinginxs3"
-        },
-        "PolicyDocument": {
-          "Version": "2008-10-17",
-          "Id": "PolicyForCloudFrontPrivateContent",
-          "Statement": [
-            {
-              "Sid": "1",
-              "Effect": "Allow",
-              "Principal": {
-                "AWS": "arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity E2OACGGHSPNGIQ"
-              },
-              "Action": "s3:GetObject",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:aws:s3:::",
-                    "vahebi-nginx-s",
-                    "3/*"
-                  ]
-                ]
-              }
-            }
-          ]
-        }
-      }
-    },
-    "acl3": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "Properties": {
-        "CidrBlock": "0.0.0.0/0",
-        "Egress": "true",
-        "Protocol": "-1",
-        "RuleAction": "allow",
-        "RuleNumber": "100",
-        "NetworkAclId": {
-          "Ref": "acl4bdb6432"
-        }
-      }
-    },
-    "acl4": {
-      "Type": "AWS::EC2::NetworkAclEntry",
-      "Properties": {
-        "CidrBlock": "0.0.0.0/0",
-        "Protocol": "-1",
-        "RuleAction": "allow",
-        "RuleNumber": "100",
-        "NetworkAclId": {
-          "Ref": "acl4bdb6432"
-        }
-      }
-    },
-    "subnetacl4": {
-      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "acl4bdb6432"
-        },
-        "SubnetId": {
-          "Ref": "subnet62423504"
-        }
-      }
-    },
-    "subnetacl5": {
-      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "acl4bdb6432"
-        },
-        "SubnetId": {
-          "Ref": "subnet5d4dfc07"
-        }
-      }
-    },
-    "subnetacl6": {
-      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
-      "Properties": {
-        "NetworkAclId": {
-          "Ref": "acl4bdb6432"
-        },
-        "SubnetId": {
-          "Ref": "subnet01e3a449"
-        }
-      }
-    },
-    "gw2": {
-      "Type": "AWS::EC2::VPCGatewayAttachment",
-      "Properties": {
-        "VpcId": {
-          "Ref": "vpcecc3f98a"
-        },
-        "InternetGatewayId": {
-          "Ref": "igw12ccfb75"
-        }
-      }
-    },
-    "route2": {
-      "Type": "AWS::EC2::Route",
-      "Properties": {
-        "DestinationCidrBlock": "0.0.0.0/0",
-        "RouteTableId": {
-          "Ref": "rtb63604c1a"
-        },
-        "GatewayId": {
-          "Ref": "igw12ccfb75"
-        }
-      },
-      "DependsOn": "gw2"
-    },
-    "dchpassoc2": {
-      "Type": "AWS::EC2::VPCDHCPOptionsAssociation",
-      "Properties": {
-        "VpcId": {
-          "Ref": "vpcecc3f98a"
-        },
-        "DhcpOptionsId": {
-          "Ref": "dopt5ed8ad38"
-        }
-      }
-    },
-    "ingress8": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgNginxCFWebServerSecurityGroup37RIPO7OVXPX"
-        },
-        "IpProtocol": "tcp",
-        "FromPort": "443",
-        "ToPort": "443",
-        "CidrIp": "0.0.0.0/0"
-      }
-    },
-    "ingress9": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgHTTPDMZ"
-        },
-        "IpProtocol": "tcp",
-        "FromPort": "80",
-        "ToPort": "80",
-        "CidrIp": "0.0.0.0/0"
-      }
-    },
-    "ingress10": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgHTTPDMZ"
-        },
-        "IpProtocol": "tcp",
-        "FromPort": "22",
-        "ToPort": "22",
-        "CidrIp": "0.0.0.0/0"
-      }
-    },
-    "ingress11": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgCloud9SSHHTTPEUWEST"
-        },
-        "IpProtocol": "tcp",
-        "FromPort": "80",
-        "ToPort": "80",
-        "CidrIp": "0.0.0.0/0"
-      }
-    },
-    "ingress12": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgCloud9SSHHTTPEUWEST"
-        },
-        "IpProtocol": "tcp",
-        "FromPort": "22",
-        "ToPort": "22",
-        "CidrIp": "172.16.0.0/12"
-      }
-    },
-    "ingress13": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgawscloud9SSHEnviroment96be09e191484499a45be2cdd386129fInstanceSecurityGroup1GW113IRGYCRA"
-        },
-        "IpProtocol": "tcp",
-        "FromPort": "22",
-        "ToPort": "22",
-        "CidrIp": "34.245.205.0/27"
-      }
-    },
-    "ingress14": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgawscloud9SSHEnviroment96be09e191484499a45be2cdd386129fInstanceSecurityGroup1GW113IRGYCRA"
-        },
-        "IpProtocol": "tcp",
-        "FromPort": "22",
-        "ToPort": "22",
-        "CidrIp": "34.245.205.64/27"
-      }
-    },
-    "ingress15": {
-      "Type": "AWS::EC2::SecurityGroupIngress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgdefault"
-        },
-        "IpProtocol": "-1",
-        "SourceSecurityGroupId": {
-          "Ref": "sgdefault"
-        },
-        "SourceSecurityGroupOwnerId": "811035705128"
-      }
-    },
-    "egress5": {
-      "Type": "AWS::EC2::SecurityGroupEgress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgNginxCFWebServerSecurityGroup37RIPO7OVXPX"
-        },
-        "IpProtocol": "-1",
-        "CidrIp": "0.0.0.0/0"
-      }
-    },
-    "egress6": {
-      "Type": "AWS::EC2::SecurityGroupEgress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgHTTPDMZ"
-        },
-        "IpProtocol": "-1",
-        "CidrIp": "0.0.0.0/0"
-      }
-    },
-    "egress7": {
-      "Type": "AWS::EC2::SecurityGroupEgress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgCloud9SSHHTTPEUWEST"
-        },
-        "IpProtocol": "-1",
-        "CidrIp": "0.0.0.0/0"
-      }
-    },
-    "egress8": {
-      "Type": "AWS::EC2::SecurityGroupEgress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgawscloud9SSHEnviroment96be09e191484499a45be2cdd386129fInstanceSecurityGroup1GW113IRGYCRA"
-        },
-        "IpProtocol": "-1",
-        "CidrIp": "0.0.0.0/0"
-      }
-    },
-    "egress9": {
-      "Type": "AWS::EC2::SecurityGroupEgress",
-      "Properties": {
-        "GroupId": {
-          "Ref": "sgdefault"
-        },
-        "IpProtocol": "-1",
-        "CidrIp": "0.0.0.0/0"
-      }
-    }
-  },
-  "Description": "CF-Nginx"
-}
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  EnvironmentName:
+    Description: An environment name that will be prefixed to resource names
+    Type: String
+Resources:
+  Subnet3:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      CidrBlock: 172.31.16.0/20
+      AvailabilityZone: eu-west-1c
+      VpcId: !Ref MyFirstVPC
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 582f620a-5382-4d94-81a4-eefc09f11e48
+  asgPRODNginxASG:
+    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    Properties:
+      AutoScalingGroupName: !Ref EnvironmentName
+      LoadBalancerNames:
+        - !Ref ELBV2LB1XFPI
+      LaunchConfigurationName: '-Ref ASLC29GY9'
+      DesiredCapacity: 1
+      MinSize: 1
+      MaxSize: 1
+      HealthCheckGracePeriod: 300
+      Tags:
+        - ResourceType: auto-scaling-group
+          Key: Name
+          Value: !Ref EnvironmentName
+          PropagateAtLaunch: true
+          ResourceId: Nginx-ASG
+      VPCZoneIdentifier:
+        - Subnet1
+        - Subnet2
+        - Subnet3
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 4002e66e-e565-4c6d-9328-3eb2f3001eb1
+  s3vahebinginxs3:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: Private
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: '15'
+            Id: S3-nginxlifecycle
+            Status: Enabled
+      VersioningConfiguration:
+        Status: Suspended
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 2e8c79ed-a0d9-446c-8839-5bb347dfd0f6
+  s3policyvahebinginxs3:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      Bucket: !Ref s3vahebinginxs3
+      PolicyDocument:
+        Version: 2008-10-17
+        Id: PolicyForCloudFrontPrivateContent
+        Statement:
+          - Sid: '1'
+            Effect: Allow
+            Principal:
+              AWS: >-
+                arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity
+                E2OACGGHSPNGIQ
+            Action: 's3:GetObject'
+            Resource: !Join 
+              - ''
+              - - 'arn:aws:s3:::'
+                - vahebi-nginx-s
+                - 3/*
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 753cbe84-0bbd-4804-8ef4-cc407fa4bec1
+  MyFirstVPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 172.31.0.0/16
+      InstanceTenancy: default
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+        - Key: foo
+          Value: bar
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 9f60be78-4648-4bd9-91a5-08f35024bbd3
+  Subnet2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      CidrBlock: 172.31.32.0/20
+      AvailabilityZone: eu-west-1a
+      VpcId: !Ref MyFirstVPC
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 785b853a-ad45-4ad3-8862-cbfc7a7f5bb8
+  Subnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      CidrBlock: 172.31.0.0/20
+      AvailabilityZone: eu-west-1a
+      VpcId: !Ref MyFirstVPC
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: c8bb0e61-bc71-4d9e-b8a1-0914742356a1
+  EC2I30NTR:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: ami-030dbca661d402413
+      KeyName: MyLoginKey
+      InstanceType: t2.micro
+      Tenancy: default
+      Monitoring: false
+      DisableApiTermination: true
+      InstanceInitiatedShutdownBehavior: stop
+      CreditSpecification:
+        CPUCredits: standard
+      EbsOptimized: false
+      UserData: >-
+        IyEvYmluL2Jhc2gKCiMgVXBwZGF0ZXJhIFJlcG8KeXVtIHVwZGF0ZSAteQoKIyBJbnN0YWxsZXJhIE5naW54IDEuMTIKYW1hem9uLWxpbnV4LWV4dHJhcyBpbnN0YWxsIG5naW54MS4xMiAteQoKIyBSZW5hbWUgaW5kZXguaHRtbD5iYWNrdXBpbmRleC5odG1sCm12IC91c3Ivc2hhcmUvbmdpbngvaHRtbC9pbmRleC5odG1sIC91c3Ivc2hhcmUvbmdpbngvaHRtbC9iYWNrdXBpbmRleC5odG1sCgojIFNrYXBhIGluZGV4Lmh0bWwKdG91Y2ggL3Vzci9zaGFyZS9uZ2lueC9odG1sL2luZGV4Lmh0bWwKCiMgQ3VzdG9tIGluZGV4Lmh0bWwKZWNobyAiPGh0bWw+PEgxPk1vaHNlbjwvSDE+PC9odG1sPiIgPiAvdXNyL3NoYXJlL25naW54L2h0bWwvaW5kZXguaHRtbAoKIyBJbnN0YWxsZXJhIHl1bS1jcm9uIGbDtnIgYXV0b21hdGlza2EgdXBkYXRlcwp5dW0gaW5zdGFsbCB5dW0tY3JvbiAteQoKI3N0cmVzc3Rlc3QKeXVtIGluc3RhbGwgc3RyZXNzIC15CgojIFN0YXJ0ICYgRW5hYmxlCnN5c3RlbWN0bCBlbmFibGUgeXVtLWNyb24KCiNzeXN0ZW1jdGwgc3RhcnQgeXVtLWNyb24KCiMgRW5hYmxlIGF1dG91cGRhdGVzLCBlZGl0ZXJhIGNvbmYKc2VkIC1pICdzL2FwcGx5X3VwZGF0ZXMgPSBuby9hcHBseV91cGRhdGVzID0geWVzL2cnIC9ldGMveXVtL3l1bS1jcm9uLmNvbmYKCiMgQXV0b3N0YXJ0YSBOZ2lueApzeXN0ZW1jdGwgZW5hYmxlIG5naW54CgojIFJlc3RhcnRhIE5naW54CnN5c3RlbWN0bCByZXN0YXJ0IG5naW54CgojIEFkZCBqb2IgdG8gY3JvbnRhYiwgY3AgbG9jYWwgZmlsZXMgdG8gYnVja2V0CmVjaG8gIiovNSAqICogKiAqIHJvb3QgYXdzIHMzIHN5bmMgLS1kZWxldGUgL3Vzci9zaGFyZS9uZ2lueC9odG1sIHMzOi8vdmFoZWJpLW5naW54LXMzIC0tcmVnaW9uIGV1LXdlc3QtMSIgPj4gL2V0Yy9jcm9udGFiCgojIFJlc3RhcnQgY3JvbnRhYgpzeXN0ZW1jdGwgcmVzdGFydCBjcm9uZAoKIyBFTkQ=
+      NetworkInterfaces:
+        - - !Ref EC2SG4C8TQ
+          - !Ref EC2SG3AFUT
+        - SubnetId: !Ref Subnet1
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 8
+            DeleteOnTermination: true
+            VolumeType: gp2
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: c6870ea7-aab5-407c-b61b-a5fe9184cbb0
+  EC2SG3AFUT:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref MyFirstVPC
+      GroupDescription: HTTP 80
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 4e9697ca-7906-4ab3-8cc6-90d4970352b8
+  EC2SG4C8TQ:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref MyFirstVPC
+      GroupDescription: SSH port 22
+      SecurityGroupIngress:
+        - CidrIp: 172.16.0.0/12
+          FromPort: 22
+          IpProtocol: tcp
+          ToPort: 22
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 62acfff1-b2a1-45b4-bf8c-6c6f1675ee81
+  ELBV2LB1XFPI:
+    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+    Properties:
+      Name: Nginx-ALB
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref EC2SG244U0
+      Subnets:
+        - Subnet1
+        - Subnet2
+        - Subnet3
+      Tags:
+        - key: Name
+          value: !Ref EnvironmentName
+      IpAddressType: ipv4
+      Type: application
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: f32795eb-2d2e-434b-a9f0-fd9c974122c3
+  ELBV2TGFZ9K:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 5
+      Matcher:
+        HttpCode: '200'
+      Name: !Ref EnvironmentName
+      Port: 80
+      Protocol: HTTP
+      TargetType: instance
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref MyFirstVPC
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 8fd98ae5-c845-4684-9641-f3ff8eb3b710
+  EC2SG244U0:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Nginx-ALB-HTTP-SG
+      GroupName: !Ref EnvironmentName
+      VpcId: !Ref MyFirstVPC
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 7ce7f538-924a-4b8b-92b3-dab4d529a06a
+  ELBV2L4DS6P:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      LoadBalancerArn: !Ref ELBV2LB1XFPI
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ELBV2TGFZ9K
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: c25c1819-8892-4aa8-93e6-c2ee4185014f
+  ASLC29GY9:
+    Type: 'AWS::AutoScaling::LaunchConfiguration'
+    Properties:
+      UserData: >-
+        IyEvYmluL2Jhc2gKCiMgVXBwZGF0ZXJhIFJlcG8KeXVtIHVwZGF0ZSAteQoKIyBJbnN0YWxsZXJhIE5naW54IDEuMTIKYW1hem9uLWxpbnV4LWV4dHJhcyBpbnN0YWxsIG5naW54MS4xMiAteQoKIyBSZW5hbWUgaW5kZXguaHRtbD5iYWNrdXBpbmRleC5odG1sCm12IC91c3Ivc2hhcmUvbmdpbngvaHRtbC9pbmRleC5odG1sIC91c3Ivc2hhcmUvbmdpbngvaHRtbC9iYWNrdXBpbmRleC5odG1sCgojIFNrYXBhIGluZGV4Lmh0bWwKdG91Y2ggL3Vzci9zaGFyZS9uZ2lueC9odG1sL2luZGV4Lmh0bWwKCiMgQ3VzdG9tIGluZGV4Lmh0bWwKZWNobyAiPGh0bWw+PEgxPk1vaHNlbjwvSDE+PC9odG1sPiIgPiAvdXNyL3NoYXJlL25naW54L2h0bWwvaW5kZXguaHRtbAoKIyBJbnN0YWxsZXJhIHl1bS1jcm9uIGb2ciBhdXRvbWF0aXNrYSB1cGRhdGVzCnl1bSBpbnN0YWxsIHl1bS1jcm9uIC15Cgojc3RyZXNzdGVzdAp5dW0gaW5zdGFsbCBzdHJlc3MgLXkKCiMgU3RhcnQgJiBFbmFibGUKc3lzdGVtY3RsIGVuYWJsZSB5dW0tY3JvbgoKI3N5c3RlbWN0bCBzdGFydCB5dW0tY3JvbgoKIyBFbmFibGUgYXV0b3VwZGF0ZXMsIGVkaXRlcmEgY29uZgpzZWQgLWkgJ3MvYXBwbHlfdXBkYXRlcyA9IG5vL2FwcGx5X3VwZGF0ZXMgPSB5ZXMvZycgL2V0Yy95dW0veXVtLWNyb24uY29uZgoKIyBBdXRvc3RhcnRhIE5naW54CnN5c3RlbWN0bCBlbmFibGUgbmdpbngKCiMgUmVzdGFydGEgTmdpbngKc3lzdGVtY3RsIHJlc3RhcnQgbmdpbngKCiMgQWRkIGpvYiB0byBjcm9udGFiLCBjcCBsb2NhbCBmaWxlcyB0byBidWNrZXQKZWNobyAiKi81ICogKiAqICogcm9vdCBhd3MgczMgc3luYyAtLWRlbGV0ZSBzMzovL3ZhaGViaS1uZ2lueC1zMyAvdXNyL3NoYXJlL25naW54L2h0bWwgLS1yZWdpb24gZXUtd2VzdC0xIiA+PiAvZXRjL2Nyb250YWIKCiMgUmVzdGFydCBjcm9udGFiCnN5c3RlbWN0bCByZXN0YXJ0IGNyb25kCgojIEVORA==
+      ImageId: ami-030dbca661d402413
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 8
+            DeleteOnTermination: true
+            SnapshotId: snap-0e2339b3e84c98fcd
+            VolumeType: gp2
+      EbsOptimized: false
+      IamInstanceProfile: EC2-S3ReadAccess
+      InstanceMonitoring: false
+      InstanceType: t2.micro
+      KeyName: MyLoginKey
+      LaunchConfigurationName: !Ref EnvironmentName
+      SecurityGroups:
+        - !Ref EC2SG3AFUT
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: d9b37cdc-4d00-4964-ad66-6501fe75d5fe
+Metadata:
+  'AWS::CloudFormation::Designer':
+    9f60be78-4648-4bd9-91a5-08f35024bbd3:
+      size:
+        width: 600
+        height: 600
+      position:
+        x: 60
+        'y': 90
+      z: 1
+      embeds:
+        - 7ce7f538-924a-4b8b-92b3-dab4d529a06a
+        - 8fd98ae5-c845-4684-9641-f3ff8eb3b710
+        - 62acfff1-b2a1-45b4-bf8c-6c6f1675ee81
+        - 4e9697ca-7906-4ab3-8cc6-90d4970352b8
+        - c8bb0e61-bc71-4d9e-b8a1-0914742356a1
+        - 785b853a-ad45-4ad3-8862-cbfc7a7f5bb8
+        - 582f620a-5382-4d94-81a4-eefc09f11e48
+    7ce7f538-924a-4b8b-92b3-dab4d529a06a:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 300
+        'y': 360
+      z: 2
+      parent: 9f60be78-4648-4bd9-91a5-08f35024bbd3
+      embeds: []
+      iscontainedinside:
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+    8fd98ae5-c845-4684-9641-f3ff8eb3b710:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 420
+        'y': 360
+      z: 2
+      parent: 9f60be78-4648-4bd9-91a5-08f35024bbd3
+      embeds: []
+      iscontainedinside:
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+    62acfff1-b2a1-45b4-bf8c-6c6f1675ee81:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 510
+        'y': 150
+      z: 2
+      parent: 9f60be78-4648-4bd9-91a5-08f35024bbd3
+      embeds: []
+      iscontainedinside:
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+    4e9697ca-7906-4ab3-8cc6-90d4970352b8:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 300
+        'y': 480
+      z: 2
+      parent: 9f60be78-4648-4bd9-91a5-08f35024bbd3
+      embeds: []
+      iscontainedinside:
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+    d9b37cdc-4d00-4964-ad66-6501fe75d5fe:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 720
+        'y': 90
+      z: 1
+      embeds: []
+      isassociatedwith:
+        - 4e9697ca-7906-4ab3-8cc6-90d4970352b8
+    c8bb0e61-bc71-4d9e-b8a1-0914742356a1:
+      size:
+        width: 150
+        height: 150
+      position:
+        x: 90
+        'y': 360
+      z: 2
+      parent: 9f60be78-4648-4bd9-91a5-08f35024bbd3
+      embeds:
+        - c6870ea7-aab5-407c-b61b-a5fe9184cbb0
+      iscontainedinside:
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+    c6870ea7-aab5-407c-b61b-a5fe9184cbb0:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 110
+        'y': 420
+      z: 3
+      parent: c8bb0e61-bc71-4d9e-b8a1-0914742356a1
+      embeds: []
+      iscontainedinside:
+        - c8bb0e61-bc71-4d9e-b8a1-0914742356a1
+        - c8bb0e61-bc71-4d9e-b8a1-0914742356a1
+        - c8bb0e61-bc71-4d9e-b8a1-0914742356a1
+        - c8bb0e61-bc71-4d9e-b8a1-0914742356a1
+        - c8bb0e61-bc71-4d9e-b8a1-0914742356a1
+        - c8bb0e61-bc71-4d9e-b8a1-0914742356a1
+    785b853a-ad45-4ad3-8862-cbfc7a7f5bb8:
+      size:
+        width: 150
+        height: 150
+      position:
+        x: 300
+        'y': 150
+      z: 2
+      parent: 9f60be78-4648-4bd9-91a5-08f35024bbd3
+      embeds: []
+      iscontainedinside:
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+    2e8c79ed-a0d9-446c-8839-5bb347dfd0f6:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 720
+        'y': 330
+      z: 1
+      embeds: []
+    753cbe84-0bbd-4804-8ef4-cc407fa4bec1:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 720
+        'y': 450
+      z: 1
+      embeds: []
+      isassociatedwith:
+        - 2e8c79ed-a0d9-446c-8839-5bb347dfd0f6
+    582f620a-5382-4d94-81a4-eefc09f11e48:
+      size:
+        width: 150
+        height: 150
+      position:
+        x: 90
+        'y': 150
+      z: 2
+      parent: 9f60be78-4648-4bd9-91a5-08f35024bbd3
+      embeds: []
+      iscontainedinside:
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+        - 9f60be78-4648-4bd9-91a5-08f35024bbd3
+    f32795eb-2d2e-434b-a9f0-fd9c974122c3:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 720
+        'y': 570
+      z: 1
+      embeds: []
+      isassociatedwith:
+        - 7ce7f538-924a-4b8b-92b3-dab4d529a06a
+      iscontainedinside:
+        - c8bb0e61-bc71-4d9e-b8a1-0914742356a1
+        - 785b853a-ad45-4ad3-8862-cbfc7a7f5bb8
+        - 582f620a-5382-4d94-81a4-eefc09f11e48
+    c25c1819-8892-4aa8-93e6-c2ee4185014f:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 720
+        'y': 690
+      z: 1
+      embeds: []
+      isassociatedwith:
+        - f32795eb-2d2e-434b-a9f0-fd9c974122c3
+    4002e66e-e565-4c6d-9328-3eb2f3001eb1:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 60
+        'y': 750
+      z: 1
+      embeds: []
+      iscontainedinside:
+        - c8bb0e61-bc71-4d9e-b8a1-0914742356a1
+        - 785b853a-ad45-4ad3-8862-cbfc7a7f5bb8
+        - 582f620a-5382-4d94-81a4-eefc09f11e48
