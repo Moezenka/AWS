@@ -1,12 +1,12 @@
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   EnvironmentName:
-    Description: Name
-    Default: TESTSTACK
+    Description: Enter Environment Name. NO CAPS
+    Default: vahebi
     Type: String
   Subnet1:
     Default: subnet-01e3a449
-    Description: Name
+    Description: Select Subnet
     AllowedValues:
       - subnet-01e3a449
     Type: String
@@ -14,32 +14,35 @@ Parameters:
     Default: subnet-5d4dfc07
     AllowedValues:
       - subnet-5d4dfc07
-    Description: Name
+    Description: Select Subnet
     Type: String
   Subnet3:
     Default: subnet-62423504
-    Description: Name
+    Description: Subnet
     AllowedValues:
       - subnet-62423504
     Type: String
   KeyName:
-    Description: SSHNyckeln
+    Description: Select SSH Key.
     Type: 'AWS::EC2::KeyPair::KeyName'
     Default: MyLoginKey
   AZ1:
     Default: subnet-01e3a449
+    Description: Select Subnet
     Type: 'AWS::EC2::Subnet::Id'
   AZ2:
     Default: subnet-5d4dfc07
+    Description: Select Subnet
     Type: 'AWS::EC2::Subnet::Id'
   MyFirstVPC:
     Default: vpc-ecc3f98a
+    Description: Select VPC.
     Type: 'AWS::EC2::VPC::Id'
 Resources:
   asgPRODNginxASG:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
-      AutoScalingGroupName: !Ref EnvironmentName
+      AutoScalingGroupName: !Sub '${EnvironmentName}-ASG'
       TargetGroupARNs:
         - !Ref ELBV2TGFZ9K
       LaunchConfigurationName: !Ref ASLC29GY9
@@ -48,11 +51,9 @@ Resources:
       MaxSize: 1
       HealthCheckGracePeriod: 300
       Tags:
-        - ResourceType: auto-scaling-group
-          Key: Name
-          Value: !Ref EnvironmentName
-          PropagateAtLaunch: true
-          ResourceId: !Ref EnvironmentName
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-PROD-Nginx'
+          PropagateAtLaunch: 'true'
       VPCZoneIdentifier:
         - !Ref Subnet1
         - !Ref Subnet2
@@ -63,12 +64,13 @@ Resources:
   s3vahebinginxs3:
     Type: 'AWS::S3::Bucket'
     Properties:
+      BucketName: !Sub '${EnvironmentName}-bucket'
       AccessControl: Private
       LifecycleConfiguration:
         Rules:
           - ExpirationInDays: '30'
             Prefix: Glacier
-            Id: Environmentname.lifecyclerule
+            Id: !Sub '${EnvironmentName}-bucket-LCRule'
             Status: Enabled
             Transitions:
               - TransitionInDays: '15'
@@ -92,7 +94,7 @@ Resources:
       SubnetId: !Ref Subnet1
       Tags:
         - Key: Name
-          Value: !Ref EnvironmentName
+          Value: !Sub '${EnvironmentName}-DEV-Nginx'
     Metadata:
       'AWS::CloudFormation::Designer':
         id: c6870ea7-aab5-407c-b61b-a5fe9184cbb0
@@ -113,7 +115,7 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: !Ref EnvironmentName
+          Value: !Sub '${EnvironmentName}-HTTP-SG'
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 4e9697ca-7906-4ab3-8cc6-90d4970352b8
@@ -132,13 +134,16 @@ Resources:
           IpProtocol: tcp
           ToPort: 22
       VpcId: !Ref MyFirstVPC
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-SSH-SG'
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 62acfff1-b2a1-45b4-bf8c-6c6f1675ee81
   ELBV2LB1XFPI:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
-      Name: !Ref EnvironmentName
+      Name: !Sub '${EnvironmentName}-ALB'
       Scheme: internet-facing
       IpAddressType: ipv4
       Type: application
@@ -160,7 +165,7 @@ Resources:
       HealthyThresholdCount: 5
       Matcher:
         HttpCode: '200'
-      Name: !Ref EnvironmentName
+      Name: !Sub '${EnvironmentName}-ALB-TG'
       Port: 80
       Protocol: HTTP
       TargetType: instance
@@ -186,7 +191,7 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: !Ref EnvironmentName
+          Value: !Sub '${EnvironmentName}-LB-HTTP-SG'
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 7ce7f538-924a-4b8b-92b3-dab4d529a06a
@@ -220,7 +225,7 @@ Resources:
       InstanceMonitoring: false
       InstanceType: t2.micro
       KeyName: !Ref KeyName
-      LaunchConfigurationName: !Ref EnvironmentName
+      LaunchConfigurationName: !Sub '${EnvironmentName}-ASG-LC'
       SecurityGroups:
         - !Ref EC2SG3AFUT
     Metadata:
@@ -329,3 +334,4 @@ Metadata:
       embeds: []
       isassociatedwith:
         - d9b37cdc-4d00-4964-ad66-6501fe75d5fe
+        - 8fd98ae5-c845-4684-9641-f3ff8eb3b710
