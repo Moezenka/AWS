@@ -61,37 +61,18 @@ Resources:
       AccessControl: Private
       LifecycleConfiguration:
         Rules:
-          - ExpirationInDays: '15'
-            Id: S3-nginxlifecycle
+          - ExpirationInDays: '30'
+            Prefix: Glacier
+            Id: Environmentname.lifecyclerule
             Status: Enabled
+            Transitions:
+              - TransitionInDays: '15'
+                StorageClass: Glacier
       VersioningConfiguration:
-        Status: Suspended
+        Status: Enabled
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 2e8c79ed-a0d9-446c-8839-5bb347dfd0f6
-  s3policyvahebinginxs3:
-    Type: 'AWS::S3::BucketPolicy'
-    Properties:
-      Bucket: !Ref s3vahebinginxs3
-      PolicyDocument:
-        Version: 2008-10-17
-        Id: PolicyForCloudFrontPrivateContent
-        Statement:
-          - Sid: '1'
-            Effect: Allow
-            Principal:
-              AWS: >-
-                arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity
-                E2OACGGHSPNGIQ
-            Action: 's3:GetObject'
-            Resource: !Join 
-              - ''
-              - - 'arn:aws:s3:::'
-                - vahebi-nginx-s
-                - 3/*
-    Metadata:
-      'AWS::CloudFormation::Designer':
-        id: 753cbe84-0bbd-4804-8ef4-cc407fa4bec1
   EC2I30NTR:
     Type: 'AWS::EC2::Instance'
     Properties:
@@ -159,6 +140,8 @@ Resources:
       Subnets:
         - !Ref AZ1
         - !Ref AZ2
+      SecurityGroups:
+        - !Ref EC2SG244U0
     Metadata:
       'AWS::CloudFormation::Designer':
         id: f32795eb-2d2e-434b-a9f0-fd9c974122c3
@@ -211,7 +194,6 @@ Resources:
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref ELBV2TGFZ9K
-      VpcId: !Ref MyFirstVPC
     Metadata:
       'AWS::CloudFormation::Designer':
         id: c25c1819-8892-4aa8-93e6-c2ee4185014f
@@ -239,3 +221,104 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: d9b37cdc-4d00-4964-ad66-6501fe75d5fe
+Metadata:
+  'AWS::CloudFormation::Designer':
+    7ce7f538-924a-4b8b-92b3-dab4d529a06a:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 60
+        'y': 90
+      z: 1
+      embeds: []
+    8fd98ae5-c845-4684-9641-f3ff8eb3b710:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 180
+        'y': 90
+      z: 1
+      embeds: []
+    f32795eb-2d2e-434b-a9f0-fd9c974122c3:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 60
+        'y': 210
+      z: 1
+      embeds: []
+      isassociatedwith:
+        - 7ce7f538-924a-4b8b-92b3-dab4d529a06a
+    c25c1819-8892-4aa8-93e6-c2ee4185014f:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 180
+        'y': 210
+      z: 1
+      embeds: []
+      isassociatedwith:
+        - f32795eb-2d2e-434b-a9f0-fd9c974122c3
+    62acfff1-b2a1-45b4-bf8c-6c6f1675ee81:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 300
+        'y': 90
+      z: 1
+      embeds: []
+    4e9697ca-7906-4ab3-8cc6-90d4970352b8:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 300
+        'y': 210
+      z: 1
+      embeds: []
+    d9b37cdc-4d00-4964-ad66-6501fe75d5fe:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 60
+        'y': 330
+      z: 1
+      embeds: []
+      isassociatedwith:
+        - 4e9697ca-7906-4ab3-8cc6-90d4970352b8
+    c6870ea7-aab5-407c-b61b-a5fe9184cbb0:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 180
+        'y': 330
+      z: 1
+      embeds: []
+      isassociatedwith:
+        - 62acfff1-b2a1-45b4-bf8c-6c6f1675ee81
+        - 4e9697ca-7906-4ab3-8cc6-90d4970352b8
+    2e8c79ed-a0d9-446c-8839-5bb347dfd0f6:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 300
+        'y': 330
+      z: 1
+      embeds: []
+    4002e66e-e565-4c6d-9328-3eb2f3001eb1:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 420
+        'y': 90
+      z: 1
+      embeds: []
