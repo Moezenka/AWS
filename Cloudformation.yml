@@ -19,7 +19,7 @@ Parameters:
     Type: String
   Subnet3:
     Default: subnet-62423504
-    Description: Subnet
+    Description: Select Subnet
     AllowedValues:
       - subnet-62423504
     Type: String
