@@ -2,6 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   EnvironmentName:
     Description: Name
+    Default: TESTSTACK
     Type: String
   Subnet1:
     Default: subnet-01e3a449
@@ -22,22 +23,26 @@ Parameters:
       - subnet-62423504
     Type: String
   KeyName:
-    Description: Importera SSHNyckeln
+    Description: SSHNyckeln
     Type: 'AWS::EC2::KeyPair::KeyName'
+    Default: MyLoginKey
   AZ1:
+    Default: subnet-01e3a449
     Type: 'AWS::EC2::Subnet::Id'
   AZ2:
+    Default: subnet-5d4dfc07
     Type: 'AWS::EC2::Subnet::Id'
   MyFirstVPC:
+    Default: vpc-ecc3f98a
     Type: 'AWS::EC2::VPC::Id'
 Resources:
   asgPRODNginxASG:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
       AutoScalingGroupName: !Ref EnvironmentName
-      LoadBalancerNames:
-        - !Ref ELBV2LB1XFPI
-      LaunchConfigurationName: '-Ref ASLC29GY9'
+      TargetGroupARNs:
+        - !Ref ELBV2TGFZ9K
+      LaunchConfigurationName: !Ref ASLC29GY9
       DesiredCapacity: 1
       MinSize: 1
       MaxSize: 1
@@ -322,3 +327,5 @@ Metadata:
         'y': 90
       z: 1
       embeds: []
+      isassociatedwith:
+        - d9b37cdc-4d00-4964-ad66-6501fe75d5fe
