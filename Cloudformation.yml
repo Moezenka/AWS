@@ -4,7 +4,7 @@ Parameters:
     Description: Enter Environment Name. NO CAPS
     Default: vahebi
     Type: String
-    AllowedPattern: '[a-z-0-9]*'
+    AllowedPattern: '[a-z0-9]*$'
   Subnet1:
     Default: subnet-01e3a449
     Description: Select Subnet
@@ -148,7 +148,8 @@ Resources:
         - !Ref AZ1
         - !Ref AZ2
         - !Ref Subnet3
-      SecurityGroups: !Ref EC2SG1YR0R
+      SecurityGroups: 
+        - !Ref EC2SG1YR0R
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 96ed2431-b4fc-4e2e-bd70-546bd1dcde48
@@ -162,10 +163,6 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-          CidrIp: 172.16.0.0/12
       SecurityGroupEgress:
         - IpProtocol: -1
           CidrIp: 0.0.0.0/0
@@ -219,11 +216,10 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: !Sub '${EnvironmentName}-HTTP-SG'
+          Value: !Sub '${EnvironmentName}-PROD-HTTP-SG'
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 4e9697ca-7906-4ab3-8cc6-90d4970352b8
-  EC2SG4C8TQ:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: SSH port 22
@@ -292,7 +288,7 @@ Resources:
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
-          Value: !Sub '${EnvironmentName}-LB-HTTP-SG'
+          Value: !Sub '${EnvironmentName}-PROD-LB-HTTP-SG'
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 7ce7f538-924a-4b8b-92b3-dab4d529a06a
