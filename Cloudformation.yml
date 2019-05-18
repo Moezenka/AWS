@@ -81,16 +81,121 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: 2e8c79ed-a0d9-446c-8839-5bb347dfd0f6
+  EC2SG1YR0R:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: DEV-ALB-HTTP-SG
+      VpcId: !Ref MyFirstVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 172.16.0.0/12
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}DEV-ALB-SSHinternal-HTTP-SG'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 58cf82e5-e9fe-43da-b3e4-1324dc9f37aa
+  ELBV2TG35035:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 5
+      Matcher:
+        HttpCode: '200'
+      Name: !Sub '${EnvironmentName}-DEV-ALB-TG'
+      Port: 80
+      Protocol: HTTP
+      TargetType: instance
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref MyFirstVPC
+      Targets:
+        - Id: !Ref EC2I30NTR
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: cb8f9697-3a09-4939-a665-28ac1c768c73
+  ELBV2L2XUEG:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      LoadBalancerArn: !Ref ELBV2LB1Q5UY
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ELBV2TG35035
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 8c590673-934d-491a-a6d8-7a6ce333ebdd
+  ELBV2LB1Q5UY:
+    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+    Properties:
+      Name: !Sub '${EnvironmentName}-DEV-ALB'
+      Scheme: internet-facing
+      IpAddressType: ipv4
+      Type: application
+      Subnets:
+        - !Ref AZ1
+        - !Ref AZ2
+        - !Ref Subnet3
+      SecurityGroups: !Ref EC2SG1YR0R
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 96ed2431-b4fc-4e2e-bd70-546bd1dcde48
+  EC2SG48E23:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: DEV-HTTP-SG
+      VpcId: !Ref MyFirstVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 172.16.0.0/12
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}DEV-SSHinternal-HTTP-SG'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 87dc0c75-9722-4205-8d8c-7db6a5058340
   EC2I30NTR:
     Type: 'AWS::EC2::Instance'
     Properties:
       KeyName: !Ref KeyName
+      UserData:
+        'Fn::Base64':
+          'Fn::Sub':
+          -  |
+           #!/bin/bash
+           yum update -y
+           systemctl enable yum-cron
+           systemctl restart yum-cron
+           echo "*/5 * * * * root aws s3 sync --delete /usr/share/nginx/html s3://${S3Bucket} " >> /etc/crontab
+           systemctl restart crond
+           aws s3 sync --delete /usr/share/nginx/html s3://${S3Bucket}
+          - S3Bucket: !GetAtt s3vahebinginxs3.Arn
       LaunchTemplate:
         LaunchTemplateId: lt-0fe5a315510b32767
         Version: 2
       SecurityGroupIds:
-        - !Ref EC2SG4C8TQ
-        - !Ref EC2SG3AFUT
+        - !Ref EC2SG48E23
       InstanceType: t2.micro
       SubnetId: !Ref Subnet1
       Tags:
@@ -140,7 +245,7 @@ Resources:
   ELBV2LB1XFPI:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
-      Name: !Sub '${EnvironmentName}-ALB'
+      Name: !Sub '${EnvironmentName}-PROD-ALB'
       Scheme: internet-facing
       IpAddressType: ipv4
       Type: application
@@ -163,7 +268,7 @@ Resources:
       HealthyThresholdCount: 5
       Matcher:
         HttpCode: '200'
-      Name: !Sub '${EnvironmentName}-ALB-TG'
+      Name: !Sub '${EnvironmentName}-PROD-ALB-TG'
       Port: 80
       Protocol: HTTP
       TargetType: instance
@@ -207,26 +312,26 @@ Resources:
     Type: 'AWS::AutoScaling::LaunchConfiguration'
     Properties:
       UserData:
-        Fn::Base64:
-          Fn::Sub:
-          -  |
-           #!/bin/bash
-           yum update -y
-           amazon-linux-extras install nginx1.12 -y
-           mv /usr/share/nginx/html/index.html /usr/share/nginx/html/backupindex.html
-           touch /usr/share/nginx/html/index.html
-           echo "<html><H1>Mohsen</H1></html>" >/usr/share/nginx/html/index.html
-           yum install yum-cron -y
-           yum install stress -y
-           systemctl enable yum-cron
-           systemctl restart yum-cron
-           sed -i 's/apply_updates = no/apply_updates = yes/g' /etc/yum/yum-cron.conf
-           systemctl enable nginx
-           systemctl restart nginx
-           echo "*/5 * * * * root aws s3 sync --delete s3://${S3Bucket} /usr/share/nginx/html" >> /etc/crontab
-           systemctl restart crond
-           aws s3 sync --delete s3://${S3Bucket} /usr/share/nginx/html
-          - S3Bucket: !GetAtt s3vahebinginxs3.Arn
+        'Fn::Base64':
+          'Fn::Sub':
+            -  |
+             #!/bin/bash
+             yum update -y
+             amazon-linux-extras install nginx1.12 -y
+             mv /usr/share/nginx/html/index.html /usr/share/nginx/html/backupindex.html
+             touch /usr/share/nginx/html/index.html
+             echo "<html><H1>Mohsen</H1></html>" >/usr/share/nginx/html/index.html
+             yum install yum-cron -y
+             yum install stress -y
+             systemctl enable yum-cron
+             systemctl restart yum-cron
+             sed -i 's/apply_updates = no/apply_updates = yes/g' /etc/yum/yum-cron.conf
+             systemctl enable nginx
+             systemctl restart nginx
+             echo "*/5 * * * * root aws s3 sync --delete s3://${S3Bucket} /usr/share/nginx/html" >> /etc/crontab
+             systemctl restart crond
+             aws s3 sync --delete s3://${S3Bucket} /usr/share/nginx/html
+            - S3Bucket: !GetAtt s3vahebinginxs3.Arn
       ImageId: ami-030dbca661d402413
       BlockDeviceMappings:
         - DeviceName: /dev/xvda
@@ -246,107 +351,3 @@ Resources:
     Metadata:
       'AWS::CloudFormation::Designer':
         id: d9b37cdc-4d00-4964-ad66-6501fe75d5fe
-Metadata:
-  'AWS::CloudFormation::Designer':
-    7ce7f538-924a-4b8b-92b3-dab4d529a06a:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 60
-        'y': 90
-      z: 1
-      embeds: []
-    8fd98ae5-c845-4684-9641-f3ff8eb3b710:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 180
-        'y': 90
-      z: 1
-      embeds: []
-    f32795eb-2d2e-434b-a9f0-fd9c974122c3:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 60
-        'y': 210
-      z: 1
-      embeds: []
-      isassociatedwith:
-        - 7ce7f538-924a-4b8b-92b3-dab4d529a06a
-    c25c1819-8892-4aa8-93e6-c2ee4185014f:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 180
-        'y': 210
-      z: 1
-      embeds: []
-      isassociatedwith:
-        - f32795eb-2d2e-434b-a9f0-fd9c974122c3
-    62acfff1-b2a1-45b4-bf8c-6c6f1675ee81:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 300
-        'y': 90
-      z: 1
-      embeds: []
-    4e9697ca-7906-4ab3-8cc6-90d4970352b8:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 300
-        'y': 210
-      z: 1
-      embeds: []
-    d9b37cdc-4d00-4964-ad66-6501fe75d5fe:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 60
-        'y': 330
-      z: 1
-      embeds: []
-      isassociatedwith:
-        - 4e9697ca-7906-4ab3-8cc6-90d4970352b8
-    c6870ea7-aab5-407c-b61b-a5fe9184cbb0:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 180
-        'y': 330
-      z: 1
-      embeds: []
-      isassociatedwith:
-        - 62acfff1-b2a1-45b4-bf8c-6c6f1675ee81
-        - 4e9697ca-7906-4ab3-8cc6-90d4970352b8
-    2e8c79ed-a0d9-446c-8839-5bb347dfd0f6:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 300
-        'y': 330
-      z: 1
-      embeds: []
-    4002e66e-e565-4c6d-9328-3eb2f3001eb1:
-      size:
-        width: 60
-        height: 60
-      position:
-        x: 420
-        'y': 90
-      z: 1
-      embeds: []
-      isassociatedwith:
-        - d9b37cdc-4d00-4964-ad66-6501fe75d5fe
-        - 8fd98ae5-c845-4684-9641-f3ff8eb3b710
