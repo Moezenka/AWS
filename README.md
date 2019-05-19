@@ -1,4 +1,6 @@
 # AWS
-AWS
 
-AWS01-MohsenVahebi.xml = draw.io inlämningsuppgift 1
+# Inlämningsuppgift 1
+
+Cloudformation.yml & 
+AWS01-MohsenVahebi.xml
