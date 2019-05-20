@@ -69,10 +69,10 @@ S3 Cloudfront CDN
 	Edge Location är plats som cache:ar content, finns 50st i dagsläget
 	Origin är där huvudmaterialet finns innan man delar ut den via CDN
 	Origin kan vara:
-		S3-Bucket
-		EC2 Instance (VM)
-		Elastic Load Balancer
-		Route53
+		- S3-Bucket
+		- EC2 Instance (VM)
+		- Elastic Load Balancer
+		- Route53
 	Distribution är namnet på din CDN som består av Edge Locations
 	Web Distribution är typiskt för hemsidor
 	RTMP används för media streaming
@@ -83,26 +83,26 @@ S3 Cloudfront CDN
 S3 Security & Encryption
 	Buckets är privat default
 	ACL på buckets:
-		Bucket Policies
-		Access Control Lists
+		- Bucket Policies
+		- Access Control Lists
 	Buckets kan access loggas
 	Encryption
-		In Transit
-			SSL/TLS
-		At Rest
-			Server Side Encryption(Förkortningar är viktiga)
-				S3 Managed Keys - SS3-S3
-				AWS Key Management Service, Managed Keys - SSE-KMS(Audit Trail)
-				Server Side Encryption With Customer Provided Keys - SSE-C
-		Client Side Encryption
+		- In Transit
+			- SSL/TLS
+		- At Rest
+			- Server Side Encryption(Förkortningar är viktiga)
+				- S3 Managed Keys - SS3-S3
+				- AWS Key Management Service, Managed Keys - SSE-KMS(Audit Trail)
+				- Server Side Encryption With Customer Provided Keys - SSE-C
+		- Client Side Encryption
 		
 S3 Storage Gateway
 	File Gateway: pdf, word dokument
 	Volume Gateway
-		Stored Volumes: Skickar data från onsite till AWS som en backup
-		Cached Volumes: All data är lagrad på S3 medans det som är cache:at finns onprem
+		- Stored Volumes: Skickar data från onsite till AWS som en backup
+		- Cached Volumes: All data är lagrad på S3 medans det som är cache:at finns onprem
 	Gateway Virtual Tape Library:
-		Används med backup applicationer så som Veeam
+		- Används med backup applicationer så som Veeam
 
 S3 Snowball
 	Import Export är vad Snowball hette tidigare
@@ -116,7 +116,7 @@ EC2 Options
 	On Demand: fixed rate by the second
 	Reserved: 1-3 år kontrakt, kapacitetsreservation
 	Spot: Bid price, auktion
-		Om du stoppar en Spot instans så betalar du för hela timman
+		- Om du stoppar en Spot instans så betalar du för hela timman
 	Dedicated Hosts: dedikerad maskin
 	DIRTMCG-FPX (DR MC GIFT PX) Instans Typerna
 
@@ -124,9 +124,9 @@ EC2 EBS
 	SSD General Purpose (GP2)>10,000 IOPS
 	SSD Provisioned IOPS (IO1)+10,000 IOPS
 	HDD, Throughput Optimized (ST1) Big Data, Frequently Accessed Workloads
-		Kan ej köra OS
+		- Kan ej köra OS
 	HDD, Cold SC1 - Less frequently accessed data, fil server
-		Kan ej köra OS
+		- Kan ej köra OS
 	HDD Magnetic Standard, billig, infrequently accessed storage
 	Kan ej mounta 1 EBS till flera EC2 Instanser, används EFS istället
 
@@ -162,8 +162,8 @@ EC2 Instance Store
 	
 EC2 ELB
 	ELB Status
-		InService
-		OutofService
+		- InService
+		- OutofService
 	Du får bara en DNS och inte en IP
 
 EC2 Cloudwatch(monitorering)
@@ -228,10 +228,10 @@ EC2 Lambda (Datacenter>IAAS>PAAS>Containers>Serverless)
 	Continuous Scaling / Scales OUT 
 	1 event = 1 funktion
 	Språk:
-		Node.js
-		Java
-		Python
-		C#
+		- Node.js
+		- Java
+		- Python
+		- C#
 
 AWS Databases
 	RDS -OLTP (OLTP tänk ehandel, vad jag köper, när det kommer, vilken adress)
@@ -246,25 +246,25 @@ AWS Databases
 		SSD
 		Ligger i 3 datacenters
 		Consistency Models
-			Eventual Consistent Read (Default)
-			Strongly Consistent Reads (Svarar under 1 sekund)
+			- Eventual Consistent Read (Default)
+			- Strongly Consistent Reads (Svarar under 1 sekund)
 	Redshift - OLAP ( OLAP = Komplexa Queries)
-		Single Node (160GB)
-		Multi-Node
-			Leader Node (Tar emot klient förfrågningar)
-			Compute Node (Lagrar data och räknas Max 128)
+		- Single Node (160GB)
+		- Multi-Node
+			- Leader Node (Tar emot klient förfrågningar)
+			- Compute Node (Lagrar data och räknas Max 128)
 	Elasticache - In Memory Caching
-		Memcached
-		Redis
+		- Memcached
+		- Redis
 	Multi AZ syncar till en annan DB, failover
 	Read Replica skalar ut databasen med Read Databaser
 	Aurora Scaling
-		Håller 2 kopior på din data per instans minimum 2 AZ alltså 6 kopior
-		Är byggd så att du kan tappa 2 kopior utan att det påverkar write, 3 kopior utan att det påverkar read
-		Är self-healing
-		Replikas
-			Aurora Replica (15)
-			MySQL Read Replica (5)
+		- Håller 2 kopior på din data per instans minimum 2 AZ alltså 6 kopior
+		- Är byggd så att du kan tappa 2 kopior utan att det påverkar write, 3 kopior utan att det påverkar read
+		- Är self-healing
+		- Replikas
+			- Aurora Replica (15)
+			- MySQL Read Replica (5)
 
 Architected Security
 	Apply at all layers
@@ -276,23 +276,23 @@ Architected Security
 	Customer Responsible IN The Cloud
 	Amazon Responsible OF The Cloud
 	Security Pillars:
-		Data Protection: Encrypt Data @ REST, Encrypt Data In TRANSIT
+		- Data Protection: Encrypt Data @ REST, Encrypt Data In TRANSIT
 			- Organize & Classify
 			- /Public/Private etc
 			- Encrypt EVERYTHING, REST & TRANSIT
 			- Versioning
-		Privilege Management:
+		- Privilege Management:
 			- ACL
 			- Role Based Access Control
 			- Password Management
-		Infrastructure Protection:
-		- Protecting VPC
-		- Private or Public Network?
-		Detective Controls:
-		- AWS CloudTrail
-		- AWS Cloudwatch
-		- AWS Config
-		- AWS Simple Storage Service
-		- AWS Glacier
+		- Infrastructure Protection:
+			- Protecting VPC
+			- Private or Public Network?
+		- Detective Controls:
+			- AWS CloudTrail
+			- AWS Cloudwatch
+			- AWS Config
+			- AWS Simple Storage Service
+			- AWS Glacier
 	
 	
