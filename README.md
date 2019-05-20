@@ -32,6 +32,28 @@ install-nginx.sh
 
 Create-Instance.sh
 
+# Python
+
+health.py	
+
+
+hello_world.py	
+
+
+hello_you.py	
+
+
+if.py	
+
+
+in.py	
+
+
+meeting_idle.py	
+
+
+slicer.py	
+
 ## Inlämningsuppgift 1
 
 •Cloudformation.yml
