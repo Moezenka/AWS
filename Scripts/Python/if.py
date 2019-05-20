@@ -12,4 +12,4 @@ else:
 	print("num1 is equal to num2")
 
 
-# if A == 1 and B == 2:
+# if (A == 1 and B == 2) or (C == 3 and D== 4) :
