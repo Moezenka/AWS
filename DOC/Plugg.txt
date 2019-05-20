@@ -18,7 +18,6 @@ https://cloudcraft.co/ # ska vara bättre
 #syncar
 aws s3 sync --delete /var/www/ s3://minbucket
 
-*/3
 skapa .htaccess
 ###########################################################
 IAM
@@ -173,6 +172,8 @@ EC2 Cloudwatch(monitorering)
 		Events: if this then that
 		Logs, installerar en agent 
 		Cloudtrail är inte samma sak, det är mer auditing
+		Standard Monitoring = 5 Minutes
+		Detailed Monitoring = 1 Minutes
 		
 EC2 AWS-CLI
 	aws configure
@@ -188,7 +189,6 @@ EC2 AWS-CLI
 				cat credentials
 	aws ec2 describe-instances [listar alla instanser]
 	aws ec2 terminate-instances --instance-ids [instansID] #tar bort instansen
-	aws-ec2 run-instances #skapar instans
 	
 EC2 CLI & Region
 	aws s3 cp --recursive s3://namnpåbucket-uswesteast1 /home/ec2-user
@@ -266,9 +266,33 @@ AWS Databases
 			Aurora Replica (15)
 			MySQL Read Replica (5)
 
-DevOps
-	
-	
-	
+Architected Security
+	Apply at all layers
+	Enable Traceabililty
+	Automate Response To Security Event
+	Focus On Securing Your System
+	Automate Security Best Practices
+	https://aws.amazon.com/marketplace/seller-profile?id=dfa1e6a8-0b7b-4d35-a59c-ce272caee4fc&useStub=false&page=1
+	Customer Responsible IN The Cloud
+	Amazon Responsible OF The Cloud
+	Security Pillars:
+		Data Protection: Encrypt Data @ REST, Encrypt Data In TRANSIT
+			- Organize & Classify
+			- /Public/Private etc
+			- Encrypt EVERYTHING, REST & TRANSIT
+			- Versioning
+		Privilege Management:
+			- ACL
+			- Role Based Access Control
+			- Password Management
+		Infrastructure Protection:
+		- Protecting VPC
+		- Private or Public Network?
+		Detective Controls:
+		- AWS CloudTrail
+		- AWS Cloudwatch
+		- AWS Config
+		- AWS Simple Storage Service
+		- AWS Glacier
 	
 	
