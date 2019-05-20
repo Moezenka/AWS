@@ -28,11 +28,11 @@ hello.sh
 
 install-nginx.sh	
 
-# AWSCLI
+## AWSCLI
 
 Create-Instance.sh
 
-# Python
+## Python
 
 health.py	
 
@@ -56,7 +56,7 @@ slicer.py
 
 ## Inlämningsuppgift 1
 
-•Cloudformation.yml
+Cloudformation.yml
 
 
-•AWS01-MohsenVahebi.xml
+AWS01-MohsenVahebi.xml
