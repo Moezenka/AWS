@@ -1,0 +1,140 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 1 (0x1)
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=SE, ST=Vastra Gotalands Lan, L=Gothenburg, O=vahebi, OU=changeme, CN=factorio.vahebi.se/name=server/emailAddress=root@factorio.vahebi.se
+        Validity
+            Not Before: May 25 14:28:02 2019 GMT
+            Not After : May 22 14:28:02 2029 GMT
+        Subject: C=SE, ST=Vastra Gotalands Lan, L=Gothenburg, O=vahebi, OU=changeme, CN=server/name=server/emailAddress=root@factorio.vahebi.se
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (4096 bit)
+                Modulus:
+                    00:a5:03:69:02:82:ab:49:20:11:2e:9c:79:a4:be:
+                    f4:8b:8c:70:c2:8a:94:6f:30:9e:f7:85:e7:b9:4e:
+                    26:d1:4d:12:f7:90:33:96:e6:eb:cd:57:64:6c:ec:
+                    a0:3e:77:38:4f:ee:9a:87:68:47:9a:d0:6d:11:a1:
+                    51:ca:c0:2b:15:b8:58:73:f6:94:e6:c8:69:15:e7:
+                    14:ea:46:21:d9:ff:0e:a9:01:ca:c7:94:5e:51:12:
+                    5b:bd:18:66:56:df:d0:c6:a2:19:00:1e:7f:f9:35:
+                    a3:72:0d:95:40:3e:0c:a2:58:21:2f:b3:be:1b:9a:
+                    0e:50:0e:05:14:8d:08:72:c6:2a:70:0d:9b:42:67:
+                    8b:cb:8a:37:2d:ee:34:04:e5:4c:71:1a:19:77:4d:
+                    40:df:2c:53:19:d1:74:3d:46:4d:28:48:82:ab:bc:
+                    54:01:f2:14:50:07:59:69:56:60:8e:30:7d:ac:91:
+                    56:bc:71:f1:fd:bf:4d:d2:c6:84:51:e4:b7:16:38:
+                    cf:c0:f5:c3:6a:a0:31:ff:cb:d8:c7:29:74:ef:f1:
+                    96:a7:53:bf:f7:cd:54:1a:4a:c0:a2:0c:ab:dd:42:
+                    0e:2d:a6:03:64:a6:8e:29:45:b9:ec:e2:ba:35:a6:
+                    68:8b:67:4f:07:1e:00:36:5e:0e:1c:39:72:ab:a6:
+                    a1:3c:34:ab:0d:b3:5b:6b:53:db:31:50:3c:0a:4a:
+                    98:c0:cf:3a:77:31:7c:f5:19:ed:f3:e8:bc:02:15:
+                    84:5f:a6:7c:af:92:78:35:41:d5:ff:40:4c:59:59:
+                    88:95:62:75:51:cb:e7:9e:c0:7d:0b:20:80:83:a9:
+                    c3:1d:63:f3:39:4f:80:d1:34:a8:51:d9:97:39:8e:
+                    37:80:db:5e:26:c7:38:f7:22:ed:48:ea:9f:b3:4f:
+                    08:ab:c5:b6:37:1f:fd:9b:00:b0:9c:35:31:a3:1c:
+                    3c:f1:9c:8c:d4:b0:84:5f:9a:af:e8:94:6b:05:35:
+                    15:de:08:d9:99:a1:c9:30:1f:8f:e2:3e:c5:77:a3:
+                    d9:a5:10:4f:bd:a4:2b:c4:e1:bb:ac:f9:40:67:ed:
+                    74:95:3f:3f:7b:b5:83:30:e9:f0:88:3f:6f:da:00:
+                    4d:75:5e:fd:1d:c8:bd:ee:59:1c:d3:51:85:d0:88:
+                    99:8d:d2:fd:2c:b9:7d:ee:47:b2:10:00:77:ec:62:
+                    38:ba:0b:9e:b4:23:76:8d:18:d3:78:60:7f:d8:9a:
+                    d5:49:8d:ed:de:55:28:1a:8e:41:e8:ec:41:de:01:
+                    b8:7c:3d:c1:22:1c:18:c1:32:ce:00:37:01:17:3d:
+                    62:28:68:98:c5:eb:b1:51:7c:d2:ab:80:bd:0a:ab:
+                    2a:b3:db
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Cert Type: 
+                SSL Server
+            Netscape Comment: 
+                Easy-RSA Generated Server Certificate
+            X509v3 Subject Key Identifier: 
+                8E:38:C4:D3:BC:C0:F8:4D:64:DD:50:0B:ED:B1:BD:C9:D5:31:DA:2D
+            X509v3 Authority Key Identifier: 
+                keyid:D2:50:43:0B:00:C5:2E:CC:BA:39:93:5B:D2:5D:05:0F:23:7C:0C:61
+                DirName:/C=SE/ST=Vastra Gotalands Lan/L=Gothenburg/O=vahebi/OU=changeme/CN=factorio.vahebi.se/name=server/emailAddress=root@factorio.vahebi.se
+                serial:85:7B:D9:56:79:C4:85:55
+
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication
+            X509v3 Key Usage: 
+                Digital Signature, Key Encipherment
+    Signature Algorithm: sha1WithRSAEncryption
+         4b:09:47:89:4f:0a:d5:18:71:95:53:63:da:97:f9:e3:d3:d0:
+         6b:39:51:e9:5f:36:9c:a8:88:3b:86:69:0e:ac:f4:7d:5a:ea:
+         11:87:5c:15:7b:04:fb:65:f9:b2:92:46:a5:8f:f8:bd:e3:4e:
+         b9:67:6a:e3:ca:03:68:cd:2e:36:40:c4:c2:d4:2e:b0:e7:b5:
+         a0:af:9a:3b:4d:33:6c:d9:2f:60:06:f4:f2:48:27:6f:6d:43:
+         c8:27:67:50:91:c4:b9:5f:4a:6d:01:7d:d4:c2:58:9a:56:58:
+         2a:52:c9:50:df:48:ee:68:82:5b:66:c1:dc:b6:35:dd:d0:54:
+         7f:fd:28:6a:65:b7:46:d1:c8:42:25:1c:70:19:f5:96:80:0b:
+         8e:d8:80:90:9b:09:a6:90:20:c3:fb:27:ce:db:66:47:2f:0c:
+         7d:19:8d:23:b6:eb:4c:a4:3b:d2:bf:9b:d9:7d:5d:1d:21:5c:
+         34:94:72:65:5f:c0:ac:df:46:ae:86:c7:39:8d:58:1c:b0:44:
+         8d:90:b2:e8:c6:7b:32:88:cb:0f:02:3f:0a:13:f0:f2:eb:2d:
+         4c:2d:b6:4c:c8:de:41:b4:f5:4f:3e:5c:bf:9a:1a:4e:1d:d5:
+         20:92:e3:5d:17:8a:72:3a:db:da:25:e1:d2:b9:b6:bb:2b:d9:
+         77:9a:1e:a5:bf:b5:83:e6:8e:0f:d8:4f:ee:bf:35:20:ed:49:
+         c9:63:3d:4c:db:21:83:40:1c:41:d8:f8:64:9b:75:dd:34:f3:
+         04:73:db:a8:89:79:21:6b:a4:9d:e6:52:86:bb:f7:04:38:1c:
+         ad:2f:dc:62:2f:84:27:0b:01:8f:2f:03:ff:8a:0b:bb:3e:03:
+         5c:e6:26:a3:0a:d4:44:cb:da:32:d8:11:c4:9b:9a:fe:4a:37:
+         72:a7:ad:88:90:81:37:7d:85:7d:b7:d7:36:ee:4a:83:7c:64:
+         6b:64:72:4e:39:2e:d9:c8:98:cb:4f:fd:80:36:47:12:08:13:
+         02:b8:20:ec:b8:c7:47:54:cc:83:87:65:3f:ac:d6:80:b4:ed:
+         20:73:43:23:b2:01:73:ad:47:2a:01:15:5c:6d:ab:c7:0c:52:
+         c7:01:66:04:18:fe:4f:74:d1:88:80:fb:4c:a8:08:78:f2:ce:
+         81:09:db:0f:9d:5d:85:b7:95:c5:20:0d:b5:8e:36:5e:9b:2b:
+         14:b3:15:92:85:c2:d3:11:12:be:c9:fa:fb:a5:08:53:f5:c1:
+         ad:4c:21:30:3a:3e:51:5e:5e:3b:ea:e5:35:ea:22:f1:96:37:
+         6f:46:f7:1a:ab:54:d0:69:90:7e:24:e1:31:b9:50:99:d3:9b:
+         ec:84:ac:da:2d:62:cc:9b
+-----BEGIN CERTIFICATE-----
+MIIHdTCCBV2gAwIBAgIBATANBgkqhkiG9w0BAQUFADCBuzELMAkGA1UEBhMCU0Ux
+HTAbBgNVBAgTFFZhc3RyYSBHb3RhbGFuZHMgTGFuMRMwEQYDVQQHEwpHb3RoZW5i
+dXJnMQ8wDQYDVQQKEwZ2YWhlYmkxETAPBgNVBAsTCGNoYW5nZW1lMRswGQYDVQQD
+ExJmYWN0b3Jpby52YWhlYmkuc2UxDzANBgNVBCkTBnNlcnZlcjEmMCQGCSqGSIb3
+DQEJARYXcm9vdEBmYWN0b3Jpby52YWhlYmkuc2UwHhcNMTkwNTI1MTQyODAyWhcN
+MjkwNTIyMTQyODAyWjCBrzELMAkGA1UEBhMCU0UxHTAbBgNVBAgTFFZhc3RyYSBH
+b3RhbGFuZHMgTGFuMRMwEQYDVQQHEwpHb3RoZW5idXJnMQ8wDQYDVQQKEwZ2YWhl
+YmkxETAPBgNVBAsTCGNoYW5nZW1lMQ8wDQYDVQQDEwZzZXJ2ZXIxDzANBgNVBCkT
+BnNlcnZlcjEmMCQGCSqGSIb3DQEJARYXcm9vdEBmYWN0b3Jpby52YWhlYmkuc2Uw
+ggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQClA2kCgqtJIBEunHmkvvSL
+jHDCipRvMJ73hee5TibRTRL3kDOW5uvNV2Rs7KA+dzhP7pqHaEea0G0RoVHKwCsV
+uFhz9pTmyGkV5xTqRiHZ/w6pAcrHlF5RElu9GGZW39DGohkAHn/5NaNyDZVAPgyi
+WCEvs74bmg5QDgUUjQhyxipwDZtCZ4vLijct7jQE5UxxGhl3TUDfLFMZ0XQ9Rk0o
+SIKrvFQB8hRQB1lpVmCOMH2skVa8cfH9v03SxoRR5LcWOM/A9cNqoDH/y9jHKXTv
+8ZanU7/3zVQaSsCiDKvdQg4tpgNkpo4pRbns4ro1pmiLZ08HHgA2Xg4cOXKrpqE8
+NKsNs1trU9sxUDwKSpjAzzp3MXz1Ge3z6LwCFYRfpnyvkng1QdX/QExZWYiVYnVR
+y+eewH0LIICDqcMdY/M5T4DRNKhR2Zc5jjeA214mxzj3Iu1I6p+zTwirxbY3H/2b
+ALCcNTGjHDzxnIzUsIRfmq/olGsFNRXeCNmZockwH4/iPsV3o9mlEE+9pCvE4bus
++UBn7XSVPz97tYMw6fCIP2/aAE11Xv0dyL3uWRzTUYXQiJmN0v0suX3uR7IQAHfs
+Yji6C560I3aNGNN4YH/YmtVJje3eVSgajkHo7EHeAbh8PcEiHBjBMs4ANwEXPWIo
+aJjF67FRfNKrgL0Kqyqz2wIDAQABo4IBjDCCAYgwCQYDVR0TBAIwADARBglghkgB
+hvhCAQEEBAMCBkAwNAYJYIZIAYb4QgENBCcWJUVhc3ktUlNBIEdlbmVyYXRlZCBT
+ZXJ2ZXIgQ2VydGlmaWNhdGUwHQYDVR0OBBYEFI44xNO8wPhNZN1QC+2xvcnVMdot
+MIHwBgNVHSMEgegwgeWAFNJQQwsAxS7MujmTW9JdBQ8jfAxhoYHBpIG+MIG7MQsw
+CQYDVQQGEwJTRTEdMBsGA1UECBMUVmFzdHJhIEdvdGFsYW5kcyBMYW4xEzARBgNV
+BAcTCkdvdGhlbmJ1cmcxDzANBgNVBAoTBnZhaGViaTERMA8GA1UECxMIY2hhbmdl
+bWUxGzAZBgNVBAMTEmZhY3RvcmlvLnZhaGViaS5zZTEPMA0GA1UEKRMGc2VydmVy
+MSYwJAYJKoZIhvcNAQkBFhdyb290QGZhY3RvcmlvLnZhaGViaS5zZYIJAIV72VZ5
+xIVVMBMGA1UdJQQMMAoGCCsGAQUFBwMBMAsGA1UdDwQEAwIFoDANBgkqhkiG9w0B
+AQUFAAOCAgEASwlHiU8K1RhxlVNj2pf549PQazlR6V82nKiIO4ZpDqz0fVrqEYdc
+FXsE+2X5spJGpY/4veNOuWdq48oDaM0uNkDEwtQusOe1oK+aO00zbNkvYAb08kgn
+b21DyCdnUJHEuV9KbQF91MJYmlZYKlLJUN9I7miCW2bB3LY13dBUf/0oamW3RtHI
+QiUccBn1loALjtiAkJsJppAgw/snzttmRy8MfRmNI7brTKQ70r+b2X1dHSFcNJRy
+ZV/ArN9GrobHOY1YHLBEjZCy6MZ7MojLDwI/ChPw8ustTC22TMjeQbT1Tz5cv5oa
+Th3VIJLjXReKcjrb2iXh0rm2uyvZd5oepb+1g+aOD9hP7r81IO1JyWM9TNshg0Ac
+Qdj4ZJt13TTzBHPbqIl5IWukneZShrv3BDgcrS/cYi+EJwsBjy8D/4oLuz4DXOYm
+owrURMvaMtgRxJua/ko3cqetiJCBN32FfbfXNu5Kg3xka2RyTjku2ciYy0/9gDZH
+EggTArgg7LjHR1TMg4dlP6zWgLTtIHNDI7IBc61HKgEVXG2rxwxSxwFmBBj+T3TR
+iID7TKgIePLOgQnbD51dhbeVxSANtY42XpsrFLMVkoXC0xESvsn6+6UIU/XBrUwh
+MDo+UV5eO+rlNeoi8ZY3b0b3GqtU0GmQfiThMblQmdOb7ISs2i1izJs=
+-----END CERTIFICATE-----
