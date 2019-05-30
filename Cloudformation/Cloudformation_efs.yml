@@ -1,0 +1,336 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  EnvironmentName:
+    Description: Enter Environment Name. NO CAPS
+    Default: vahebi
+    Type: String
+    AllowedPattern: '[a-z0-9]*$'
+    ConstraintDescription: No CAPS.
+  Subnet1:
+    Default: subnet-01e3a449
+    Description: Select Subnet
+    AllowedValues:
+      - subnet-01e3a449
+    Type: String
+  Subnet2:
+    Default: subnet-5d4dfc07
+    AllowedValues:
+      - subnet-5d4dfc07
+    Description: Select Subnet
+    Type: String
+  Subnet3:
+    Default: subnet-62423504
+    Description: Select Subnet
+    AllowedValues:
+      - subnet-62423504
+    Type: String
+  KeyName:
+    Description: Select SSH Key.
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Default: MyLoginKey
+  AZ1:
+    Default: subnet-01e3a449
+    Description: Select Subnet
+    Type: 'AWS::EC2::Subnet::Id'
+  AZ2:
+    Default: subnet-5d4dfc07
+    Description: Select Subnet
+    Type: 'AWS::EC2::Subnet::Id'
+  MyFirstVPC:
+    Default: vpc-ecc3f98a
+    Description: Select VPC.
+    Type: 'AWS::EC2::VPC::Id'
+Resources:
+  RDS:
+    Type: 'AWS::RDS::DBInstance'
+    DeletionPolicy: Delete
+    Properties:
+      AutoMinorVersionUpgrade: true
+      CopyTagsToSnapshot: true
+      MultiAZ: false
+      PubliclyAccessible: true
+      StorageEncrypted: false
+      AllocatedStorage: 20
+      BackupRetentionPeriod: 7
+      Iops: 0
+      MonitoringInterval: 0
+      Port: 3306
+      DBInstanceClass: db.t2.micro
+      DBInstanceIdentifier: !Sub '${EnvironmentName}-wordpressdb'
+      DBParameterGroupName: default.mariadb10.2
+      DBSubnetGroupName: default
+      Engine: mariadb
+      EngineVersion: 10.2.21
+      LicenseModel: general-public-license
+      MasterUserPassword: wordpresspassword
+      MasterUsername: wordpressuser
+      OptionGroupName: 'default:mariadb-10-2'
+      StorageType: GP2
+  EFSFileSystem:
+    Type: 'AWS::EFS::FileSystem'
+    DependsOn:
+    - RDS
+    Properties:
+      FileSystemTags:
+      - Key: Name
+        Value: !Sub '${EnvironmentName}-wordpressdb'
+      PerformanceMode: generalPurpose
+      Encrypted: false
+      ThroughputMode: bursting
+  EFSMountTarget:
+    Type: 'AWS::EFS::MountTarget'
+    DependsOn:
+    - EFSFileSystem
+    - DBSG
+    Properties:
+      FileSystemId: !Ref EFSFileSystem
+      SubnetId: !Ref Subnet1
+      SecurityGroups:
+        - !Ref NFSSG
+  WordpressASG:
+    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    DependsOn:
+    - RDS
+    Properties:
+      AutoScalingGroupName: !Sub '${EnvironmentName}-ASG'
+      TargetGroupARNs:
+        - !Ref ASGTG
+      LaunchConfigurationName: !Ref ASGLC
+      DesiredCapacity: 1
+      MinSize: 1
+      MaxSize: 1
+      HealthCheckGracePeriod: 300
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-PROD-ASG'
+          PropagateAtLaunch: 'true'
+      VPCZoneIdentifier:
+        - !Ref Subnet1
+        - !Ref Subnet2
+        - !Ref Subnet3
+  ALBListener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ASGTG
+  ALB:
+    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
+    DependsOn:
+    - RDS
+    Properties:
+      Name: !Sub '${EnvironmentName}-ALB'
+      Scheme: internet-facing
+      IpAddressType: ipv4
+      Type: application
+      Subnets:
+        - !Ref AZ1
+        - !Ref AZ2
+        - !Ref Subnet3
+      SecurityGroups:
+        - !Ref HTTPSG
+  HTTPSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: HTTP-SG
+      VpcId: !Ref MyFirstVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}HTTP-SG'
+  SSHSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: SSH-SG
+      VpcId: !Ref MyFirstVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 172.16.0.0/12
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}SSHinternal-SG'
+  NFSSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: NFS-SG
+      VpcId: !Ref MyFirstVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 2049
+          ToPort: 2049
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}NFS-SG'
+  WordpressInstance:
+    Type: 'AWS::EC2::Instance'
+    DependsOn:
+     - RDS
+     - EFSMountTarget
+     - EFSFileSystem
+    Properties:
+      KeyName: !Ref KeyName
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Mount EFS
+          yum update -y
+          yum install amazon-efs-utils -y
+          mkdir -p /var/www/html/
+          DIR_SRC=${EFSFileSystem}.efs.${AWS::Region}.amazonaws.com
+          echo -e "$DIR_SRC:/ /var/www/html nfs defaults 0 0" | tee -a /etc/fstab
+          mount -a
+          rm -rf tee
+          # INSTALL WP - EDIT DBNAME
+          yum install -y httpd php-mysqlnd
+          amazon-linux-extras install -y php7.2
+          systemctl start httpd
+          systemctl enable httpd
+          usermod -a -G apache ec2-user
+          chown -R ec2-user:apache /var/www
+          chmod 2775 /var/www && find /var/www -type d -exec sudo chmod 2775 {} \;
+          find /var/www -type f -exec sudo chmod 0664 {} \;
+          yum install php-mbstring -y
+          systemctl restart httpd
+          systemctl restart php-fpm
+          wget https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.tar.gz -P /var/www/html
+          mkdir /var/www/html/phpMyAdmin && tar -xvzf /var/www/html/phpMyAdmin-latest-all-languages.tar.gz -C /var/www/html/phpMyAdmin --strip-components 1
+          rm  -rf /var/www/html/phpMyAdmin-latest-all-languages.tar.gz
+          wget https://wordpress.org/latest.tar.gz
+          tar -xzf latest.tar.gz
+          rm -rf latest.tar.gz
+          cp wordpress/wp-config-sample.php wordpress/wp-config.php
+          sed -i "s/define( 'DB_NAME', 'database_name_here' );/define( 'DB_NAME', 'wordpressdb' );/g " wordpress/wp-config.php
+          sed -i "s/define( 'DB_USER', 'username_here' );/define( 'DB_USER', 'wordpressuser' );/g " wordpress/wp-config.php
+          sed -i "s/define( 'DB_PASSWORD', 'password_here' );/define( 'DB_PASSWORD', 'wordpresspassword' );/g " wordpress/wp-config.php
+          sed -i "s/'localhost'/${RDS.Endpoint.Address}/g" wordpress/wp-config.php
+          curl https://api.wordpress.org/secret-key/1.1/salt/ > salt.txt
+          sed -i '49,56d' wordpress/wp-config.php
+          cat salt.txt | tee -a wordpress/wp-config.php
+          rm -rf salt.txt
+          rm -rf tee
+          cp -r wordpress/* /var/www/html/
+          rm -rf wordpress
+          sed -i '151s/AllowOverride None/AllowOverride All/' /etc/httpd/conf/httpd.conf
+          chown -R apache /var/www
+          chgrp -R apache /var/www
+          chmod 2775 /var/www
+          find /var/www -type d -exec sudo chmod 2775 {} \;
+          find /var/www -type f -exec sudo chmod 0664 {} \;
+          systemctl restart httpd
+          systemctl enable php-fpm
+          systemctl restart php-fpm
+      SecurityGroupIds:
+        - !Ref DBSG
+        - !Ref NFSSG
+        - !Ref HTTPSG
+        - !Ref SSHSG
+      InstanceType: t2.micro
+      ImageId: ami-030dbca661d402413
+      SubnetId: !Ref Subnet1
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}-DEV-Wordpress'
+  DBSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref MyFirstVPC
+      GroupDescription: DB-SG
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Sub '${EnvironmentName}DB-SG'
+  ASGTG:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 5
+      Matcher:
+        HttpCode: '200'
+      Name: !Sub '${EnvironmentName}-ALB-TG'
+      Port: 80
+      Protocol: HTTP
+      TargetType: instance
+      UnhealthyThresholdCount: 2
+      VpcId: !Ref MyFirstVPC
+      Targets:
+        - Id: !Ref WordpressInstance
+  ASGLC:
+    Type: 'AWS::AutoScaling::LaunchConfiguration'
+    DependsOn:
+      - WordpressInstance
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+             #!/bin/bash
+             # Mount EFS
+             yum update -y
+             yum install amazon-efs-utils -y
+             mkdir -p /var/www/html/
+             # INSTALL WP - EDIT DBNAME
+             yum install -y httpd php-mysqlnd
+             amazon-linux-extras install -y php7.2
+             systemctl start httpd
+             systemctl enable httpd
+             systemctl enable php-fpm
+             usermod -a -G apache ec2-user
+             yum install php-mbstring -y
+             rm -rf /var/www/html/*
+             DIR_SRC=${EFSFileSystem}.efs.${AWS::Region}.amazonaws.com
+             echo -e "$DIR_SRC:/ /var/www/html nfs defaults 0 0" | tee -a /etc/fstab
+             mount -a mount -a 
+             systemctl restart httpd
+             systemctl restart php-fpm
+             rm -rf tee
+      ImageId: ami-030dbca661d402413
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs:
+            VolumeSize: 8
+            DeleteOnTermination: true
+            SnapshotId: snap-0e2339b3e84c98fcd
+            VolumeType: gp2
+      EbsOptimized: false
+      InstanceMonitoring: false
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName
+      LaunchConfigurationName: !Sub '${EnvironmentName}-ASG-LC'
+      SecurityGroups:
+        - !Ref DBSG
+        - !Ref NFSSG
+        - !Ref HTTPSG
+Outputs: 
+    RDSDB:
+        Value: !GetAtt RDS.Endpoint.Address
