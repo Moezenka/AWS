@@ -217,27 +217,6 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub '${EnvironmentName}-PROD-HTTP-SG'
-    Metadata:
-      'AWS::CloudFormation::Designer':
-        id: 4e9697ca-7906-4ab3-8cc6-90d4970352b8
-    Type: 'AWS::EC2::SecurityGroup'
-    Properties:
-      GroupDescription: SSH port 22
-      SecurityGroupIngress:
-        - CidrIp: 172.16.0.0/12
-          FromPort: 22
-          IpProtocol: tcp
-          ToPort: 22
-      SecurityGroupEgress:
-        - CidrIp: 172.16.0.0/12
-          IpProtocol: -1
-      VpcId: !Ref MyFirstVPC
-      Tags:
-        - Key: Name
-          Value: !Sub '${EnvironmentName}-SSH-SG'
-    Metadata:
-      'AWS::CloudFormation::Designer':
-        id: 62acfff1-b2a1-45b4-bf8c-6c6f1675ee81
   ELBV2LB1XFPI:
     Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Properties:
